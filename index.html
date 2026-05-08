@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+</<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -83,11 +83,14 @@ body {
 .tabs {
   display: flex;
   background: white;
-  margin: 0 12px;
-  border-radius: 12px;
-  padding: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  margin: 0;
+  border-radius: 0;
+  padding: 4px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
   margin-bottom: 12px;
+  position: sticky;
+  top: 96px;
+  z-index: 40;
 }
 .tab {
   flex: 1;
@@ -417,6 +420,170 @@ textarea {
   padding: 0 4px;
   margin-bottom: 6px;
 }
+
+/* カードダスプリズムキラキラ */
+@keyframes prism {
+  0%   { background-position: 0% 0%; }
+  25%  { background-position: 100% 0%; }
+  50%  { background-position: 100% 100%; }
+  75%  { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+@keyframes shimmer {
+  0%   { left: -100%; opacity: 0.8; }
+  100% { left: 150%; opacity: 0; }
+}
+@keyframes shimmer2 {
+  0%   { left: -100%; opacity: 0.5; }
+  100% { left: 150%; opacity: 0; }
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  40%       { opacity: 1; transform: scale(1.2) rotate(180deg); }
+  60%       { opacity: 1; transform: scale(1) rotate(270deg); }
+}
+@keyframes prismPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 10px 3px rgba(180,0,255,0.7),
+      0 0 25px 6px rgba(0,100,255,0.5),
+      0 0 40px 10px rgba(255,0,180,0.3);
+  }
+  33% {
+    box-shadow:
+      0 0 10px 3px rgba(0,150,255,0.7),
+      0 0 25px 6px rgba(255,0,200,0.5),
+      0 0 40px 10px rgba(100,0,255,0.3);
+  }
+  66% {
+    box-shadow:
+      0 0 10px 3px rgba(255,0,150,0.7),
+      0 0 25px 6px rgba(100,0,255,0.5),
+      0 0 40px 10px rgba(0,200,255,0.3);
+  }
+}
+@keyframes textPrism {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.kira-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 8px;
+  animation: prismPulse 3s ease-in-out infinite;
+  /* ダイヤモンドパターン背景 */
+  background-color: #1a0030;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(180,0,255,0.15) 0px, rgba(180,0,255,0.15) 2px,
+      transparent 2px, transparent 12px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0,100,255,0.15) 0px, rgba(0,100,255,0.15) 2px,
+      transparent 2px, transparent 12px
+    );
+  border: 2px solid rgba(200,100,255,0.8);
+}
+/* プリズム虹色オーバーレイ */
+.kira-card .prism-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255,0,200,0.12) 0%,
+    rgba(100,0,255,0.18) 20%,
+    rgba(0,100,255,0.15) 35%,
+    rgba(0,220,255,0.12) 50%,
+    rgba(100,0,255,0.18) 65%,
+    rgba(255,0,150,0.15) 80%,
+    rgba(180,0,255,0.12) 100%
+  );
+  background-size: 300% 300%;
+  animation: prism 4s linear infinite;
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+/* 光沢ライン1 */
+.kira-card .shine1 {
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.06),
+    rgba(200,150,255,0.25),
+    rgba(255,255,255,0.06),
+    transparent
+  );
+  transform: skewX(-15deg);
+  animation: shimmer 2s ease-in-out infinite;
+  z-index: 2;
+}
+/* 光沢ライン2 */
+.kira-card .shine2 {
+  position: absolute;
+  top: 0; left: -100%;
+  width: 30%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100,200,255,0.2),
+    transparent
+  );
+  transform: skewX(-15deg);
+  animation: shimmer2 2s ease-in-out infinite 0.8s;
+  z-index: 2;
+}
+.kira-content {
+  position: relative;
+  z-index: 3;
+}
+.kira-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg,
+    #ff66ff, #aa66ff, #6699ff, #66ffff, #aa66ff, #ff66ff
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textPrism 2s linear infinite;
+  margin-bottom: 6px;
+  text-shadow: none;
+}
+.kira-text {
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(90deg,
+    #ffffff, #ddaaff, #aaddff, #ffffff, #ffaadd, #ffffff
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textPrism 3s linear infinite;
+}
+.kira-date {
+  font-size: 11px;
+  color: #aa88cc;
+  margin-top: 6px;
+}
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 13px;
+  animation: sparkle 1.8s ease-in-out infinite;
+  z-index: 4;
+  filter: drop-shadow(0 0 3px rgba(200,100,255,0.9));
+}
 </style>
 </head>
 <body>
@@ -448,6 +615,10 @@ textarea {
       <span class="summary-label" style="color:#059669">✓ 支払い済み</span>
       <span class="summary-value" style="color:#059669;font-size:15px">－<span id="paidPaymentAmt">0</span>円</span>
     </div>
+    <div class="summary-row" id="gamblingRow" style="display:none">
+      <span class="summary-label" style="color:#dc2626">🎰 ギャンブル損失</span>
+      <span class="summary-value" style="color:#dc2626;font-size:15px">－<span id="gamblingTotal">0</span>円</span>
+    </div>
     <div class="progress-container">
       <div class="progress-bar" id="progressBar" style="width:0%"></div>
     </div>
@@ -457,13 +628,24 @@ textarea {
       <span class="summary-label">📊 残り（余り）</span>
       <span class="summary-value remain"><span id="remain">0</span>円</span>
     </div>
+    <div style="margin-top:10px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:4px">
+        <span>今月やばい度</span>
+        <span id="yabaLabel">-</span>
+      </div>
+      <div style="background:#e5e7eb;border-radius:8px;height:10px;overflow:hidden">
+        <div id="yabaBar" style="height:100%;width:0%;transition:width 0.4s ease;border-radius:8px"></div>
+      </div>
+    </div>
   </div>
 
   <div class="tabs">
     <div class="tab active" onclick="switchTab('income')">収入</div>
     <div class="tab" onclick="switchTab('payment')">支払い</div>
-    <div class="tab" onclick="switchTab('allocation')">振り分け</div>
+    <div class="tab" onclick="switchTab('gambling')">🎰負け</div>
+    <div class="tab" onclick="switchTab('allocation')">AI采配</div>
     <div class="tab" onclick="switchTab('history')">履歴</div>
+    <div class="tab" onclick="switchTab('progress')">進捗</div>
   </div>
 
   <div id="tab-income" class="tab-content">
@@ -491,21 +673,51 @@ textarea {
         <span class="section-title">今月の支払い</span>
         <div class="section-actions">
           <button class="section-action" id="reorderBtn" onclick="toggleReorderMode()">並べ替え</button>
+          <button class="section-action" onclick="autoSortPayments()">🔃 自動整列</button>
           <button class="section-action" onclick="copyFromLastMonth()">先月をコピー</button>
         </div>
       </div>
       <div class="help-text" id="paymentHelpText">優先順位は上から順（番号で表示）。チェックで支払い完了。</div>
       <div id="paymentList"></div>
       <button class="btn btn-add" onclick="addPayment()">＋ 支払いを追加</button>
+      <button class="btn btn-add" style="margin-top:8px;border-color:#4f46e5;color:#4f46e5" onclick="document.getElementById('scanInputLibrary').click()">
+        📷 支払い用紙を読み取る（写真から選ぶ）
+      </button>
+      <div style="font-size:11px;color:#9ca3af;text-align:center;margin-top:4px">
+        ※先にカメラアプリで撮影 → ここから写真を選んでください
+      </div>
+      <input type="file" id="scanInputLibrary" accept="image/*" style="display:none" onchange="scanPaymentImage(event)">
+    </div>
+  </div>
+
+  <div id="tab-gambling" class="tab-content" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🎰 ギャンブルで負けた額</span>
+        <button class="section-action" onclick="resetGambling()">クリア</button>
+      </div>
+      <div class="help-text">名目と金額を入力して「記録」ボタンで登録。収支の残りから引かれます。</div>
+      <div id="gamblingInputArea">
+        <div class="card">
+          <div class="card-row">
+            <input type="text" class="input-name" id="gamblingName" placeholder="名目（例：パチンコ、競馬）">
+          </div>
+          <div class="card-row">
+            <input type="text" class="input-amount" id="gamblingAmount" placeholder="金額" inputmode="numeric" onfocus="unformatAmountInput(this)" onblur="formatAmountInput(this)">
+            <button class="btn btn-danger" onclick="addGambling()">記録</button>
+          </div>
+        </div>
+      </div>
+      <div id="gamblingList"></div>
     </div>
   </div>
 
   <div id="tab-allocation" class="tab-content" style="display:none">
     <div class="section">
       <div class="section-header">
-        <span class="section-title">振り分け結果</span>
+        <span class="section-title">🤖 AI采配　支払いシミュレーション</span>
       </div>
-      <div class="help-text">優先順位の高い順に入金額を割り当てます。支払い済みは別枠で表示されます。</div>
+      <div class="help-text">優先順位の高い順に入金額を自動で割り当てます。支払い済みは別枠表示。</div>
       <div id="allocation"></div>
     </div>
   </div>
@@ -516,6 +728,24 @@ textarea {
         <span class="section-title">過去の月（記録あり）</span>
       </div>
       <div id="archiveList"></div>
+    </div>
+  </div>
+
+  <div id="tab-progress" class="tab-content" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">📊 返済進捗</span>
+      </div>
+      <div class="help-text">各支払いの総額を設定すると、返済進捗と完済予定が表示されます。</div>
+      <div id="progressList"></div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">😤 言い訳記録</span>
+        <button class="section-action" onclick="addExcuse()">＋ 追加</button>
+      </div>
+      <div class="help-text">払えなかった時の理由を記録して、パターンを把握しよう。</div>
+      <div id="excuseList"></div>
     </div>
   </div>
 </div>
@@ -564,6 +794,84 @@ textarea {
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- 督促アラートモーダル -->
+<div class="modal-overlay" id="alertModal">
+  <div class="modal" style="border-top:4px solid #ef4444">
+    <div style="text-align:center;font-size:32px;margin-bottom:8px">🚨</div>
+    <h3 style="text-align:center;color:#dc2626">支払い期限が迫っています！</h3>
+    <div id="alertList"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="document.getElementById('alertModal').classList.remove('show');switchTab('payment')">支払いタブへ</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('alertModal').classList.remove('show')">後で</button>
+    </div>
+  </div>
+</div>
+
+<!-- 即振り分け提案モーダル -->
+<div class="modal-overlay" id="distributeModal">
+  <div class="modal">
+    <div style="text-align:center;font-size:28px;margin-bottom:8px">🤖</div>
+    <h3 style="text-align:center">AI采配　今すぐ払う順番</h3>
+    <p style="font-size:13px;color:#6b7280;text-align:center;margin-bottom:12px">入金額を優先順位で振り分けました</p>
+    <div id="distributeList"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="document.getElementById('distributeModal').classList.remove('show')">OK！払います</button>
+    </div>
+  </div>
+</div>
+
+<!-- 言い訳入力モーダル -->
+<div class="modal-overlay" id="excuseModal">
+  <div class="modal">
+    <h3>😤 言い訳を記録</h3>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:8px">払えなかった理由を入力してください</p>
+    <textarea id="excuseInput" placeholder="例：給料日前で手持ちがなかった" style="width:100%;min-height:80px;font-size:14px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;resize:vertical"></textarea>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn btn-ghost" onclick="document.getElementById('excuseModal').classList.remove('show')">キャンセル</button>
+      <button class="btn btn-primary" onclick="submitExcuse()">記録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- スキャン結果モーダル -->
+<div class="modal-overlay" id="scanModal">
+  <div class="modal">
+    <h3>📷 読み取り結果</h3>
+    <div id="scanLoading" style="text-align:center;padding:20px">
+      <div style="font-size:32px;margin-bottom:12px">🔍</div>
+      <div style="font-size:14px;color:#6b7280">支払い用紙を読み取り中...</div>
+    </div>
+    <div id="scanResult" style="display:none">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:12px">以下の内容を確認して追加してください</div>
+      <div class="card" style="margin-bottom:8px">
+        <div class="card-row">
+          <span style="font-size:12px;color:#6b7280;width:50px">会社名</span>
+          <input type="text" id="scanName" placeholder="会社名" style="flex:1;font-size:14px;padding:8px">
+        </div>
+        <div class="card-row">
+          <span style="font-size:12px;color:#6b7280;width:50px">金額</span>
+          <input type="text" id="scanAmount" placeholder="金額" inputmode="numeric" style="flex:1;font-size:14px;padding:8px">
+        </div>
+        <div class="card-row">
+          <span style="font-size:12px;color:#6b7280;width:50px">締日</span>
+          <input type="number" id="scanDeadline" placeholder="日" min="1" max="31" inputmode="numeric" style="width:70px;font-size:14px;padding:8px;text-align:center">
+          <span style="font-size:12px;color:#6b7280">日</span>
+        </div>
+        <div style="font-size:11px;color:#9ca3af;padding:4px 0">修正してから追加できます</div>
+      </div>
+      <div id="scanNote" style="font-size:11px;color:#6b7280;background:#f9fafb;padding:8px;border-radius:6px;margin-bottom:12px"></div>
+    </div>
+    <div id="scanError" style="display:none;text-align:center;padding:12px">
+      <div style="font-size:24px">😢</div>
+      <div style="font-size:13px;color:#dc2626;margin-top:8px" id="scanErrorMsg"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeScanModal()">キャンセル</button>
+      <button class="btn btn-primary" id="scanAddBtn" style="display:none" onclick="addScannedPayment()">追加する</button>
+    </div>
+  </div>
+</div>
 
 <script>
 let data = {
@@ -615,7 +923,18 @@ function escapeHtml(str) {
 
 function formatDate(iso) {
   const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const days = ['日','月','火','水','木','金','土'];
+  const day = days[d.getDay()];
+  return d.getMonth()+1 + '/' + d.getDate() + '(' + day + ') ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+function getDaysUntil(dayOfMonth) {
+  const today = new Date();
+  const thisMonth = new Date(today.getFullYear(), today.getMonth(), dayOfMonth);
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, dayOfMonth);
+  const target = thisMonth >= today ? thisMonth : nextMonth;
+  const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+  return diff;
 }
 
 function showToast(msg) {
@@ -653,6 +972,761 @@ function save() {
   }
 }
 
+function addGambling() {
+  const nameEl = document.getElementById('gamblingName');
+  const amtEl = document.getElementById('gamblingAmount');
+  const name = nameEl.value.trim();
+  const amount = Number(amtEl.value.replace(/,/g, '') || 0);
+  if (!name) { showToast('名目を入力してください'); return; }
+  if (amount <= 0) { showToast('金額を入力してください'); return; }
+  const md = getMonthData();
+  md.gambling.push({ name, amount, date: new Date().toISOString() });
+  nameEl.value = '';
+  amtEl.value = '';
+  save(); renderGambling(); calculate();
+  showToast(yen(amount) + '円を記録しました');
+}
+
+function deleteGambling(idx) {
+  showModal('削除確認', 'この記録を削除しますか？', () => {
+    getMonthData().gambling.splice(idx, 1);
+    save(); renderGambling(); calculate();
+  });
+}
+
+function resetGambling() {
+  const cnt = (getMonthData().gambling || []).length;
+  if (cnt === 0) { showToast('記録はありません'); return; }
+  showModal('クリア確認', '今月のギャンブル記録をすべて削除しますか？', () => {
+    getMonthData().gambling = [];
+    save(); renderGambling(); calculate();
+    showToast('クリアしました');
+  });
+}
+
+function renderGambling() {
+  const list = document.getElementById('gamblingList');
+  if (!list) return;
+  const gambling = getMonthData().gambling || [];
+  if (gambling.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px"><div style="font-size:13px">まだ記録はありません</div></div>';
+    return;
+  }
+  const total = gambling.reduce((s, g) => s + Number(g.amount || 0), 0);
+  var html = '<div style="background:#fee2e2;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#991b1b;display:flex;justify-content:space-between"><span>今月の損失合計</span><b>－' + yen(total) + '円</b></div>';
+  gambling.slice().reverse().forEach(function(g, ri) {
+    var idx = gambling.length - 1 - ri;
+    html += '<div class="history-item">';
+    html += '<div><div>' + escapeHtml(g.name) + '</div><div class="history-meta">' + formatDate(g.date) + '</div></div>';
+    html += '<div style="display:flex;align-items:center;gap:6px"><span class="history-amount" style="color:#dc2626">－' + yen(g.amount) + '円</span>';
+    html += '<button class="history-delete" onclick="deleteGambling(' + idx + ')">×</button></div>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function playFanfare() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function note(freq, start, dur, vol) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.01);
+      gain.gain.setValueAtTime(vol, ctx.currentTime + start + dur - 0.05);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur + 0.01);
+    }
+    // ファンファーレ ♪ ソ・ド・ミ・ソ（明るく華やか）
+    note(392, 0.00, 0.12, 0.5);  // ソ
+    note(523, 0.13, 0.12, 0.5);  // 高ド
+    note(659, 0.26, 0.12, 0.5);  // 高ミ
+    note(784, 0.39, 0.35, 0.6);  // 高ソ（伸ばす）
+    note(659, 0.39, 0.35, 0.3);  // 高ミ（和音）
+    note(523, 0.39, 0.35, 0.3);  // 高ド（和音）
+  } catch(e) { console.log('音声再生エラー:', e); }
+}
+
+function playGacko() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function note(freq, start, dur, vol) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.01);
+      gain.gain.setValueAtTime(vol, ctx.currentTime + start + dur - 0.05);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur + 0.01);
+    }
+
+    // ドラクエ風レベルアップ ♪ タタタタタタタ〜ン！
+    // 速めに駆け上がって最後をたっぷり伸ばす
+    note(330, 0.00, 0.07, 0.35); // ミ
+    note(370, 0.07, 0.07, 0.35); // ファ#
+    note(415, 0.14, 0.07, 0.35); // ソ#
+    note(494, 0.21, 0.07, 0.4);  // シ
+    note(554, 0.28, 0.07, 0.4);  // レ#
+    note(622, 0.35, 0.07, 0.45); // レ#（高）
+    note(740, 0.42, 0.07, 0.5);  // ファ#（高）
+    // ジャーン！（短めにスパッと終わる）
+    note(988, 0.50, 0.3,  0.6);  // シ（高・メイン）
+    note(740, 0.50, 0.3,  0.35); // ファ#（和音）
+    note(494, 0.50, 0.3,  0.25); // シ（低・和音）
+    note(247, 0.50, 0.3,  0.2);  // シ（最低音・土台）
+
+  } catch(e) {
+    console.log('音声再生エラー:', e);
+  }
+}
+
+function closeScanModal() {
+  document.getElementById('scanModal').classList.remove('show');
+  document.getElementById('scanInputLibrary').value = '';
+}
+
+async function scanPaymentImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // モーダル表示
+  document.getElementById('scanModal').classList.add('show');
+  document.getElementById('scanLoading').style.display = 'block';
+  document.getElementById('scanResult').style.display = 'none';
+  document.getElementById('scanError').style.display = 'none';
+  document.getElementById('scanAddBtn').style.display = 'none';
+
+  try {
+    // 画像をBase64に変換
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result.split(',')[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+
+    // Claude APIに送信
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: file.type, data: base64 }
+            },
+            {
+              type: 'text',
+              text: 'この支払い用紙・請求書から情報を抽出してください。必ずJSON形式のみで返してください。他の文章は不要です。 {"name":"会社名または支払い先","amount":"金額（数字のみカンマなし）","deadline":"支払い期限の日のみ例25","note":"その他気づいた点"} 情報が読み取れない場合は該当フィールドを空文字にしてください。'
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content[0].text;
+
+    // JSON部分を抽出
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('情報を読み取れませんでした');
+    const result = JSON.parse(jsonMatch[0]);
+
+    // 結果を表示
+    document.getElementById('scanLoading').style.display = 'none';
+    document.getElementById('scanResult').style.display = 'block';
+    document.getElementById('scanAddBtn').style.display = 'block';
+    document.getElementById('scanName').value = result.name || '';
+    document.getElementById('scanAmount').value = result.amount ? Number(result.amount).toLocaleString() : '';
+    document.getElementById('scanDeadline').value = result.deadline || '';
+    document.getElementById('scanNote').innerText = result.note ? '📝 ' + result.note : '';
+
+  } catch(e) {
+    document.getElementById('scanLoading').style.display = 'none';
+    document.getElementById('scanError').style.display = 'block';
+    document.getElementById('scanErrorMsg').innerText = '読み取りに失敗しました。' + e.message;
+    console.error(e);
+  }
+}
+
+function addScannedPayment() {
+  const name = document.getElementById('scanName').value.trim();
+  const amount = document.getElementById('scanAmount').value.replace(/,/g, '');
+  const deadline = document.getElementById('scanDeadline').value;
+
+  if (!name) { showToast('会社名を入力してください'); return; }
+
+  getMonthData().payments.push({
+    name: name,
+    amount: amount,
+    note: '📷 スキャンで追加',
+    paid: false,
+    deadline: deadline
+  });
+
+  save(); render();
+  closeScanModal();
+  showToast('支払いを追加しました！');
+  switchTab('payment');
+}
+
+// ===== 督促アラート =====
+function checkUrgentPayments() {
+  const md = getMonthData();
+  const urgent = md.payments.filter(p => {
+    if (p.paid || !p.deadline) return false;
+    return getDaysUntil(Number(p.deadline)) <= 3;
+  });
+  if (urgent.length === 0) return;
+
+  var html = '';
+  urgent.forEach(p => {
+    const d = getDaysUntil(Number(p.deadline));
+    const label = d === 0 ? '⚠️ 今日が締切！' : '残り' + d + '日！';
+    html += '<div style="background:#fee2e2;border-radius:8px;padding:10px 12px;margin-bottom:8px">';
+    html += '<div style="font-weight:600;color:#dc2626">' + escapeHtml(p.name) + '</div>';
+    html += '<div style="font-size:13px;color:#991b1b;display:flex;justify-content:space-between">';
+    html += '<span>' + label + '</span><span>' + yen(p.amount) + '円</span></div></div>';
+  });
+  document.getElementById('alertList').innerHTML = html;
+  document.getElementById('alertModal').classList.add('show');
+}
+
+// ===== 即振り分け提案 =====
+function showDistributeProposal(incomeAmount) {
+  const md = getMonthData();
+  const totalIncome = md.history.reduce((s, h) => s + Number(h.amount || 0), 0);
+  let available = totalIncome;
+  const paidTotal = md.payments.filter(p => p.paid).reduce((s, p) => s + Number(p.amount || 0), 0);
+  available -= paidTotal;
+
+  const unpaid = md.payments.filter(p => !p.paid).slice();
+  if (unpaid.length === 0) return;
+
+  var html = '<div style="background:#f0fdf4;border-radius:8px;padding:10px 12px;margin-bottom:12px;text-align:center">';
+  html += '<div style="font-size:12px;color:#6b7280">使える金額</div>';
+  html += '<div style="font-size:20px;font-weight:700;color:#059669">+' + yen(available) + '円</div></div>';
+
+  let left = available;
+  unpaid.forEach((p, i) => {
+    const need = Number(p.amount || 0);
+    const pay = Math.min(left, need);
+    const shortage = need - pay;
+    left -= pay;
+    const ok = shortage === 0;
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-bottom:1px solid #f3f4f6">';
+    html += '<div><span style="font-size:12px;background:#ede9fe;color:#6d28d9;padding:2px 6px;border-radius:4px;margin-right:6px">' + (i+1) + '</span>';
+    html += escapeHtml(p.name) + '</div>';
+    html += '<div style="text-align:right"><div style="font-weight:600;color:' + (ok ? '#059669' : '#dc2626') + '">' + yen(pay) + '円</div>';
+    if (shortage > 0) html += '<div style="font-size:11px;color:#dc2626">不足' + yen(shortage) + '円</div>';
+    html += '</div></div>';
+  });
+
+  if (left > 0) {
+    html += '<div style="margin-top:10px;text-align:center;font-size:13px;color:#4f46e5;font-weight:600">残り ' + yen(left) + '円 は手元に残ります</div>';
+  }
+
+  // スクショ促しバナー
+  html += '<div style="margin-top:14px;padding:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:10px;text-align:center">';
+  html += '<div style="font-size:20px;margin-bottom:6px">📸</div>';
+  html += '<div style="color:white;font-size:13px;font-weight:700;margin-bottom:4px">この画面をスクショして保存！</div>';
+  html += '<div style="color:rgba(255,255,255,0.85);font-size:11px;line-height:1.6">入金したらすぐこの順番で支払いましょう。<br>スクショしておくと後で確認できます📱</div>';
+  html += '</div>';
+
+  document.getElementById('distributeList').innerHTML = html;
+  document.getElementById('distributeModal').classList.add('show');
+}
+
+// ===== やばい度メーター =====
+function updateYabaMeter() {
+  const md = getMonthData();
+  const totalPayment = md.payments.reduce((s, p) => s + Number(p.amount || 0), 0);
+  const totalIncome = md.history.reduce((s, h) => s + Number(h.amount || 0), 0);
+  const gamblingLoss = (md.gambling || []).reduce((s, g) => s + Number(g.amount || 0), 0);
+  const paidPayment = md.payments.filter(p => p.paid).reduce((s, p) => s + Number(p.amount || 0), 0);
+  const unpaid = totalPayment - paidPayment;
+
+  const bar = document.getElementById('yabaBar');
+  const label = document.getElementById('yabaLabel');
+  if (!bar || !label) return;
+
+  if (totalPayment === 0) {
+    bar.style.width = '0%';
+    label.innerText = '-';
+    return;
+  }
+
+  // やばい度 = (未払い+ギャンブル損失) / 支払い合計
+  const yabaRate = Math.min(100, ((unpaid + gamblingLoss) / totalPayment) * 100);
+
+  bar.style.width = yabaRate + '%';
+  if (yabaRate >= 80) {
+    bar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    label.innerText = '🔴 かなりやばい！';
+    label.style.color = '#dc2626';
+  } else if (yabaRate >= 50) {
+    bar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+    label.innerText = '🟡 注意が必要';
+    label.style.color = '#d97706';
+  } else if (yabaRate >= 20) {
+    bar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+    label.innerText = '🟢 まあまあ安心';
+    label.style.color = '#059669';
+  } else {
+    bar.style.background = 'linear-gradient(90deg, #3b82f6, #2563eb)';
+    label.innerText = '💙 余裕あり！';
+    label.style.color = '#2563eb';
+  }
+}
+
+// ===== 返済進捗 =====
+function renderProgress() {
+  const list = document.getElementById('progressList');
+  const md = getMonthData();
+  if (!data.repaymentGoals) data.repaymentGoals = {};
+  list.innerHTML = '';
+
+  // 全支払い（支払い済み含む）を対象に
+  const allPayments = md.payments;
+  if (allPayments.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div>支払いを追加すると<br>進捗が表示されます</div></div>';
+    renderExcuses();
+    return;
+  }
+
+  // 名前でユニーク化（同名は1つにまとめる）
+  var seen = {};
+  allPayments.forEach(function(p, idx) {
+    var key = p.name || '未入力';
+    if (seen[key]) return;
+    seen[key] = true;
+
+    var goal = data.repaymentGoals[key] || 0;
+    var monthly = Number(p.amount || 0);
+
+    // 全月の支払い済み回数を集計
+    var paidCount = 0;
+    Object.values(data.months).forEach(function(m) {
+      (m.payments || []).forEach(function(mp) {
+        if (mp.name === key && mp.paid) paidCount++;
+      });
+    });
+    var paidTotal = paidCount * monthly;
+    var rate = goal > 0 ? Math.min(100, (paidTotal / goal) * 100) : 0;
+    var remaining = goal > 0 ? Math.max(0, goal - paidTotal) : 0;
+    var monthsLeft = monthly > 0 && remaining > 0 ? Math.ceil(remaining / monthly) : 0;
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '10px';
+
+    // タイトル＋支払い済みバッジ
+    var titleRow = document.createElement('div');
+    titleRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px';
+    var titleEl = document.createElement('div');
+    titleEl.style.cssText = 'font-weight:600;font-size:15px';
+    titleEl.innerText = key;
+    titleRow.appendChild(titleEl);
+    var badge = document.createElement('span');
+    badge.style.cssText = 'font-size:11px;background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:10px';
+    badge.innerText = paidCount + '回支払済';
+    titleRow.appendChild(badge);
+    card.appendChild(titleRow);
+
+    // 総額目標入力
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px';
+    var labelEl = document.createElement('span');
+    labelEl.style.cssText = 'font-size:12px;color:#6b7280;white-space:nowrap';
+    labelEl.innerText = '借入総額:';
+    row.appendChild(labelEl);
+
+    var inputEl = document.createElement('input');
+    inputEl.type = 'text';
+    inputEl.placeholder = '例：500,000';
+    inputEl.setAttribute('inputmode', 'numeric');
+    inputEl.value = goal ? Number(goal).toLocaleString() : '';
+    inputEl.style.cssText = 'flex:1;font-size:13px;padding:6px 8px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb';
+    var capturedKey = key;
+    inputEl.addEventListener('focus', function() { this.value = this.value.replace(/,/g, ''); });
+    inputEl.addEventListener('blur', function() {
+      var raw = this.value.replace(/,/g, '');
+      var num = Number(raw);
+      if (!isNaN(num) && raw !== '') this.value = num.toLocaleString();
+      setGoal(capturedKey, raw);
+    });
+    row.appendChild(inputEl);
+    var yenEl = document.createElement('span');
+    yenEl.style.cssText = 'font-size:12px;color:#6b7280';
+    yenEl.innerText = '円';
+    row.appendChild(yenEl);
+    card.appendChild(row);
+
+    // 残高表示
+    if (goal > 0) {
+      var balanceEl = document.createElement('div');
+      balanceEl.style.cssText = 'display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px';
+      balanceEl.innerHTML = '<span style="color:#6b7280">返済済み</span><span style="color:#059669;font-weight:600">' + yen(paidTotal) + '円</span>';
+      card.appendChild(balanceEl);
+
+      var remainEl2 = document.createElement('div');
+      remainEl2.style.cssText = 'display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:8px;padding:8px;background:#f9fafb;border-radius:8px';
+      remainEl2.innerHTML = '<span>残高</span><span style="color:#dc2626">' + yen(remaining) + '円</span>';
+      card.appendChild(remainEl2);
+
+      // 進捗バー
+      var color = rate >= 80 ? '#059669' : rate >= 50 ? '#f59e0b' : '#4f46e5';
+      var barWrap = document.createElement('div');
+      barWrap.style.cssText = 'background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;margin-bottom:6px';
+      var bar = document.createElement('div');
+      bar.style.cssText = 'height:100%;width:' + rate + '%;background:' + color + ';transition:width 0.3s';
+      barWrap.appendChild(bar);
+      card.appendChild(barWrap);
+
+      var info = document.createElement('div');
+      info.style.cssText = 'display:flex;justify-content:space-between;font-size:12px;color:#6b7280';
+      info.innerHTML = '<span>返済率 ' + Math.round(rate) + '%</span>' +
+        '<span>' + (monthsLeft > 0 ? '残約' + monthsLeft + 'ヶ月' : '🎉 完済！') + '</span>';
+      card.appendChild(info);
+    }
+
+    list.appendChild(card);
+  });
+
+  renderExcuses();
+}
+
+function setGoal(name, value) {
+  if (!data.repaymentGoals) data.repaymentGoals = {};
+  data.repaymentGoals[name] = Number(value) || 0;
+  save();
+  // 進捗バーだけ更新（再描画でフォーカスが外れないように）
+  updateProgressBars();
+}
+
+function updateProgressBars() {
+  const md = getMonthData();
+  if (!data.repaymentGoals) data.repaymentGoals = {};
+  const unpaid = md.payments.filter(function(p) { return !p.paid; });
+  unpaid.forEach(function(p, idx) {
+    var key = p.name;
+    var goal = data.repaymentGoals[key] || 0;
+    var monthly = Number(p.amount || 0);
+    var paidTotal = 0;
+    Object.values(data.months).forEach(function(m) {
+      (m.payments || []).forEach(function(mp) {
+        if (mp.name === key && mp.paid) paidTotal += monthly;
+      });
+    });
+    var rate = goal > 0 ? Math.min(100, (paidTotal / goal) * 100) : 0;
+    var remaining = goal > 0 ? Math.max(0, goal - paidTotal) : 0;
+    var monthsLeft = monthly > 0 && remaining > 0 ? Math.ceil(remaining / monthly) : 0;
+
+    var barEl = document.getElementById('pbar_' + idx);
+    var infoEl = document.getElementById('pinfo_' + idx);
+    var wrapEl = document.getElementById('pbwrap_' + idx);
+    if (!wrapEl) return;
+
+    if (goal > 0) {
+      wrapEl.style.display = 'block';
+      var color = rate >= 80 ? '#059669' : rate >= 50 ? '#f59e0b' : '#4f46e5';
+      if (barEl) { barEl.style.width = rate + '%'; barEl.style.background = color; }
+      if (infoEl) infoEl.innerHTML = '<span>返済済み ' + yen(paidTotal) + '円（' + Math.round(rate) + '%）</span>' +
+        '<span>' + (monthsLeft > 0 ? '残約' + monthsLeft + 'ヶ月' : '🎉 完済！') + '</span>';
+    } else {
+      wrapEl.style.display = 'none';
+    }
+  });
+}
+
+// ===== 言い訳記録 =====
+function addExcuse() {
+  document.getElementById('excuseInput').value = '';
+  document.getElementById('excuseModal').classList.add('show');
+  setTimeout(function() { document.getElementById('excuseInput').focus(); }, 300);
+}
+
+function submitExcuse() {
+  var text = document.getElementById('excuseInput').value.trim();
+  if (!text) { showToast('理由を入力してください'); return; }
+  if (!data.excuses) data.excuses = [];
+
+  var category = classifyExcuse(text);
+  data.excuses.push({ text: text, date: new Date().toISOString(), category: category });
+  save();
+  document.getElementById('excuseModal').classList.remove('show');
+  renderExcuses();
+  showToast('記録しました');
+}
+
+function classifyExcuse(text) {
+  var t = text.toLowerCase();
+
+  // ===== プリズムキラキラ：ありえない＆ギャンブル名＆未登録支払い =====
+  var crazyWords = [
+    // うっかり・忘れ系
+    'うっかり','忘れ','忘れた','つい','気づかなかった','知らなかった','うっかりした',
+    // めんどくさい・後回し系
+    'めんどく','めんどう','面倒','後で','あとで','そのうち','まあいいか','後回し',
+    // 楽観・根拠なし系
+    'どうせ','なんとかなる','大丈夫だと','思ってた','払った気','払ったと',
+    'なんとかなった','いけると','余裕だと','余裕あると',
+    // 寝坊・酔い系
+    '財布忘れ','家忘れ','寝坊','二日酔い','酔ってた','飲みすぎ','酔って',
+    // ノリ・衝動系
+    'ノリで','勢いで','衝動','ちょっとだけ','テンションで',
+    // ギャンブルで取り返す系
+    'ロト','宝くじ','当たると','勝てると','取り返せ','絶対勝','必勝','一発逆転',
+    '取り戻せ','回収でき','稼げると','倍になる',
+    // 借りれば系
+    '借りれば','誰かに頼','貸してもらえ','借りられ',
+    // ギャンブル名（直接言い訳に出てきたら即キラキラ）
+    'パチンコ','スロット','競馬','競艇','競輪','麻雀','ポーカー','カジノ',
+    'バカラ','ブラックジャック','丁半','花札','賭け','賭博',
+    'パチ','スロ','競走','オートレース','ボートレース',
+    // 未登録支払い系
+    '知らない請求','登録してない','登録してなかった','アプリにない',
+    '別の支払い','他の支払い','別の借金','他の借金','隠してた','内緒にしてた',
+    '言ってなかった','ばれた','実は','実はまだ','もう一個','もう一つ',
+    '別にもう','他にも借','他にも支払','他の人に','別の人に'
+  ];
+
+  // ===== 自己責任（金色枠）=====
+  var selfWords = [
+    'ギャンブル','浪費','無駄遣い','使いすぎ','使い過ぎ','買いすぎ','買い過ぎ',
+    'キャバ','ホスト','風俗','飲み代','飲み会','クラブ','スナック',
+    'カード','クレジット','リボ','ショッピング',
+    'ゲーム','課金','ガチャ','スマホゲー',
+    'fx','仮想通貨','暗号通貨','投機','散財'
+  ];
+
+  // ===== 急な出費（オレンジ）=====
+  var suddenWords = [
+    '香典','お祝い','祝儀','冠婚葬祭','葬式','葬儀','法事','告別式',
+    '結婚式','出産','入院','手術','病院','医療費','薬代',
+    '事故','修理','故障','壊れ','突然','予想外','予期せず',
+    '緊急','災害','盗難','紛失','なくした','落とした','盗まれ'
+  ];
+
+  // ===== 収入問題（青）=====
+  var incomeWords = [
+    '給料','給与','振込','入金','仕事','バイト','アルバイト',
+    '売上','収入','報酬','遅れ','なかった','もらえなかった',
+    '払われなかった','クビ','解雇','辞めた','休業','閑散期',
+    '稼げなかった','客がいない','注文がない'
+  ];
+
+  for (var i = 0; i < crazyWords.length; i++) {
+    if (t.indexOf(crazyWords[i].toLowerCase()) !== -1) return 'crazy';
+  }
+  for (var i = 0; i < selfWords.length; i++) {
+    if (t.indexOf(selfWords[i].toLowerCase()) !== -1) return 'self';
+  }
+  for (var i = 0; i < suddenWords.length; i++) {
+    if (t.indexOf(suddenWords[i].toLowerCase()) !== -1) return 'sudden';
+  }
+  for (var i = 0; i < incomeWords.length; i++) {
+    if (t.indexOf(incomeWords[i].toLowerCase()) !== -1) return 'income';
+  }
+  return 'other';
+}
+
+function deleteExcuse(idx) {
+  showModal('削除確認', 'この記録を削除しますか？', () => {
+    data.excuses.splice(idx, 1);
+    save();
+    renderExcuses();
+  });
+}
+
+function renderExcuses() {
+  const list = document.getElementById('excuseList');
+  if (!list) return;
+  if (!data.excuses || data.excuses.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px"><div style="font-size:13px">言い訳はまだありません😇</div></div>';
+    return;
+  }
+
+  // カテゴリ設定
+  var catConfig = {
+    crazy:  { label: '🤦 ありえない！', border: 'transparent', bg: 'linear-gradient(135deg,#1a1a1a,#2d2410)', tag: '#ffd700', tagBg: '#2d2410', textColor: '#ffd700', shine: true },
+    self:   { label: '🎰 自己責任',    border: '#d4af37',     bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)', tag: '#b8860b', tagBg: '#fef3c7', textColor: '#92400e', shine: false },
+    sudden: { label: '😢 急な出費',    border: '#f97316',     bg: '#fff7ed', tag: '#ea580c', tagBg: '#ffedd5', textColor: '#7c2d12', shine: false },
+    income: { label: '💸 収入問題',    border: '#3b82f6',     bg: '#eff6ff', tag: '#2563eb', tagBg: '#dbeafe', textColor: '#1e3a8a', shine: false },
+    other:  { label: '📝 その他',      border: '#9ca3af',     bg: '#f9fafb', tag: '#6b7280', tagBg: '#f3f4f6', textColor: '#374151', shine: false }
+  };
+
+  // 集計
+  var counts = {};
+  var catCounts = { crazy: 0, self: 0, sudden: 0, income: 0, other: 0 };
+  data.excuses.forEach(function(e) {
+    counts[e.text] = (counts[e.text] || 0) + 1;
+    var cat = e.category || 'other';
+    catCounts[cat] = (catCounts[cat] || 0) + 1;
+  });
+
+  // 集計サマリー
+  var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+  Object.keys(catConfig).forEach(function(cat) {
+    if (catCounts[cat] === 0) return;
+    var cfg = catConfig[cat];
+    html += '<div style="font-size:11px;padding:4px 10px;border-radius:10px;background:' + cfg.tagBg + ';color:' + cfg.tag + ';font-weight:600">';
+    html += cfg.label + ' ' + catCounts[cat] + '回</div>';
+  });
+  html += '</div>';
+
+  // 一覧（新しい順）
+  data.excuses.slice().reverse().forEach(function(e, ri) {
+    var idx = data.excuses.length - 1 - ri;
+    var cat = e.category || 'other';
+    var cfg = catConfig[cat];
+
+    if (cat === 'crazy') {
+      // カードダスキラキラ特別枠
+      var sparks = ['✦','★','✸','✺','✷','❋'];
+      var positions = [
+        'top:6px;right:30px','top:4px;right:60px','top:10px;left:40px',
+        'bottom:8px;right:40px','bottom:6px;left:50px','top:5px;left:80px'
+      ];
+      html += '<div class="kira-card">';
+      html += '<div class="prism-layer"></div>';
+      html += '<div class="shine1"></div>';
+      html += '<div class="shine2"></div>';
+      positions.forEach(function(pos, si) {
+        var delay = (si * 0.3) % 1.8;
+        html += '<span class="sparkle" style="' + pos + ';animation-delay:' + delay + 's">' + sparks[si] + '</span>';
+      });
+      html += '<div class="kira-content" style="display:flex;justify-content:space-between;align-items:flex-start">';
+      html += '<div style="flex:1">';
+      html += '<div class="kira-title">🤦 ありえない！ ✨</div>';
+      html += '<div class="kira-text">' + escapeHtml(e.text);
+      if (counts[e.text] > 1) html += ' <span style="font-size:11px;color:#b8860b">×' + counts[e.text] + '</span>';
+      html += '</div>';
+      html += '<div class="kira-date">' + formatDate(e.date) + '</div>';
+      html += '</div>';
+      html += '<button style="background:none;border:none;color:#ffd700;cursor:pointer;padding:4px 8px;font-size:18px;position:relative;z-index:3" onclick="deleteExcuse(' + idx + ')">×</button>';
+      html += '</div></div>';
+    } else {
+      html += '<div style="padding:10px 12px;background:' + cfg.bg + ';border-left:4px solid ' + cfg.border + ';border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-start">';
+      html += '<div style="flex:1">';
+      html += '<div style="font-size:11px;color:' + cfg.tag + ';font-weight:600;margin-bottom:3px">' + cfg.label + '</div>';
+      html += '<div style="font-size:14px;color:' + cfg.textColor + '">' + escapeHtml(e.text);
+      if (counts[e.text] > 1) html += ' <span style="font-size:11px;color:#9ca3af">×' + counts[e.text] + '</span>';
+      html += '</div>';
+      html += '<div style="font-size:11px;color:#9ca3af;margin-top:3px">' + formatDate(e.date) + '</div>';
+      html += '</div>';
+      html += '<button class="history-delete" onclick="deleteExcuse(' + idx + ')">×</button>';
+      html += '</div>';
+    }
+  });
+
+  list.innerHTML = html;
+}
+
+function addToCalendar(idx) {
+  const md = getMonthData();
+  const p = md.payments[idx];
+  if (!p || !p.deadline) return;
+
+  const today = new Date();
+  const deadline = Number(p.deadline);
+
+  // 今月の締日を計算（過ぎていたら来月）
+  let targetDate = new Date(today.getFullYear(), today.getMonth(), deadline);
+  if (targetDate <= today) {
+    targetDate = new Date(today.getFullYear(), today.getMonth() + 1, deadline);
+  }
+
+  const pad = n => String(n).padStart(2, '0');
+  const y = targetDate.getFullYear();
+  const m = pad(targetDate.getMonth() + 1);
+  const d = pad(targetDate.getDate());
+  const amount = p.amount ? Number(p.amount).toLocaleString() + '円' : '';
+  const title = encodeURIComponent('💳 支払い期限：' + (p.name || '支払い') + (amount ? '　' + amount : ''));
+  const notes = encodeURIComponent('今日が' + (p.name || '支払い') + 'の締日です！\n金額：' + amount + '\n滞納しないよう今すぐ確認を！');
+
+  // iPhoneカレンダー用URL（calshow://）
+  // 日付をUNIXタイムスタンプに変換
+  const startTime = Math.floor(targetDate.getTime() / 1000);
+
+  // Googleカレンダー用URL（Webブラウザで開く）
+  const gStart = y + m + d;
+  const gEnd = y + m + d;
+  const googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + title +
+    '&dates=' + gStart + '/' + gEnd +
+    '&details=' + notes;
+
+  // モーダルで選択肢を表示
+  showModal(
+    '📅 カレンダーに追加',
+    targetDate.getMonth()+1 + '月' + targetDate.getDate() + '日（' + (p.name||'支払い') + ' ' + amount + '）\n\nどちらのカレンダーに追加しますか？',
+    () => {
+      // OKでGoogleカレンダーを開く
+      window.open(googleUrl, '_blank');
+    }
+  );
+
+  // モーダルのOKボタンのテキストを変更
+  setTimeout(() => {
+    const btn = document.getElementById('modalConfirm');
+    if (btn) btn.innerText = '📅 Googleカレンダーへ';
+
+    // キャンセルボタンの横にiPhoneカレンダーボタンを追加
+    const actions = document.querySelector('.modal-actions');
+    if (actions && !document.getElementById('iosCalBtn')) {
+      const iosBtn = document.createElement('button');
+      iosBtn.id = 'iosCalBtn';
+      iosBtn.className = 'btn btn-ghost';
+      iosBtn.style.flex = '1';
+      iosBtn.innerText = '📱 iPhoneカレンダー';
+      iosBtn.onclick = function() {
+        // iPhoneカレンダーアプリを開く（URL schemeが使えない場合はicsを試みる）
+        const icsContent = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//家計やりくり//JP',
+          'BEGIN:VEVENT',
+          'UID:kakumei-' + Date.now() + '@budget',
+          'DTSTART;VALUE=DATE:' + y + m + d,
+          'DTEND;VALUE=DATE:' + y + m + d,
+          'SUMMARY:💳 支払い期限：' + (p.name||'支払い') + (amount ? ' ' + amount : ''),
+          'DESCRIPTION:締日です！滞納しないよう今すぐ確認を！',
+          'BEGIN:VALARM',
+          'TRIGGER:-P1D',
+          'ACTION:DISPLAY',
+          'DESCRIPTION:明日が' + (p.name||'支払い') + 'の締日です！',
+          'END:VALARM',
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([icsContent], {type: 'text/calendar'});
+        const url = URL.createObjectURL(blob);
+        window.location.href = url;
+        closeModal();
+      };
+      // キャンセルボタンの前に挿入
+      actions.insertBefore(iosBtn, actions.firstChild);
+    }
+  }, 100);
+}
+
 function load() {
   let saved = localStorage.getItem('budgetAppData_v3');
   if (!saved) saved = localStorage.getItem('budgetAppData_v2');
@@ -674,6 +1748,7 @@ function load() {
     if (!m.payments) m.payments = [];
     if (!m.history) m.history = [];
     if (!m.recordedTemplates) m.recordedTemplates = [];
+    if (!m.gambling) m.gambling = [];
     m.payments.forEach(p => {
       if (p.note === undefined) p.note = '';
     });
@@ -682,21 +1757,66 @@ function load() {
 
 function getMonthData() {
   if (!data.months[data.currentMonth]) {
-    data.months[data.currentMonth] = { payments: [], history: [], recordedTemplates: [] };
+    data.months[data.currentMonth] = { payments: [], history: [], recordedTemplates: [], gambling: [] };
   }
   if (!data.months[data.currentMonth].recordedTemplates) {
     data.months[data.currentMonth].recordedTemplates = [];
   }
+  if (!data.months[data.currentMonth].gambling) {
+    data.months[data.currentMonth].gambling = [];
+  }
   return data.months[data.currentMonth];
 }
 
+function carryOverUnpaid(fromKey, toKey) {
+  // fromKeyの未払い支払いをtoKeyに最優先で持ち越す
+  const fromData = data.months[fromKey];
+  if (!fromData || !fromData.payments) return;
+  const unpaid = fromData.payments.filter(p => !p.paid);
+  if (unpaid.length === 0) return;
+
+  if (!data.months[toKey]) {
+    data.months[toKey] = { payments: [], history: [], recordedTemplates: [], gambling: [] };
+  }
+  const toData = data.months[toKey];
+
+  // 既に持ち越し済みの項目名を確認（重複防止）
+  const existingNames = toData.payments.map(p => p.name + '_' + p.amount);
+  const toAdd = unpaid.filter(p => !existingNames.includes(p.name + '_' + p.amount));
+
+  if (toAdd.length === 0) return;
+
+  // 持ち越し分を先頭に追加（最優先）
+  const carried = toAdd.map(p => ({
+    name: p.name,
+    amount: p.amount,
+    note: (p.note ? p.note + '\n' : '') + '【前月繰越】',
+    paid: false
+  }));
+  toData.payments = [...carried, ...toData.payments];
+  showToast(toAdd.length + '件を翌月に持ち越しました');
+}
+
 function changeMonth(diff) {
+  const prevMonth = data.currentMonth;
   const [y, m] = data.currentMonth.split('-').map(Number);
   const d = new Date(y, m - 1 + diff, 1);
   data.currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   if (!data.months[data.currentMonth]) {
-    data.months[data.currentMonth] = { payments: [], history: [] };
+    data.months[data.currentMonth] = { payments: [], history: [], recordedTemplates: [], gambling: [] };
   }
+
+  // 翌月へ進む時だけ自動持ち越しチェック
+  if (diff === 1) {
+    const prevMd = data.months[prevMonth];
+    const unpaidCount = prevMd ? (prevMd.payments || []).filter(p => !p.paid).length : 0;
+    if (unpaidCount > 0) {
+      carryOverUnpaid(prevMonth, data.currentMonth);
+    }
+    // 月変わり後に自動並べ替え
+    setTimeout(() => { autoSortPayments(); }, 100);
+  }
+
   reorderMode = false;
   openNotes = {};
   save();
@@ -716,12 +1836,14 @@ function goToCurrentMonth() {
 
 function switchTab(tab) {
   currentTab = tab;
-  const tabs = ['income', 'payment', 'allocation', 'history'];
+  const tabs = ['income', 'payment', 'gambling', 'allocation', 'history', 'progress'];
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', tabs[i] === tab);
   });
   document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-  document.getElementById(`tab-${tab}`).style.display = 'block';
+  document.getElementById('tab-' + tab).style.display = 'block';
+  if (tab === 'gambling') renderGambling();
+  if (tab === 'progress') renderProgress();
 }
 
 function addIncome() {
@@ -757,7 +1879,9 @@ function recordIncome(i) {
     md.recordedTemplates.push(i);
   }
   save(); render();
-  showToast(`${yen(amount)}円を記録しました`);
+  playFanfare();
+  showToast(yen(amount) + '円を記録しました');
+  setTimeout(() => showDistributeProposal(amount), 800);
 }
 
 function deleteHistoryItem(idx) {
@@ -797,9 +1921,29 @@ function resetMonthIncome() {
 
 function addPayment() {
   getMonthData().payments.push({
-    name: '', amount: '', note: '', paid: false
+    name: '', amount: '', note: '', paid: false, deadline: ''
   });
   save(); render();
+}
+
+function autoSortPayments() {
+  const md = getMonthData();
+  const today = new Date();
+
+  md.payments.sort(function(a, b) {
+    // 1. 前月繰越を最優先
+    const aCarried = (a.note || '').includes('【前月繰越】');
+    const bCarried = (b.note || '').includes('【前月繰越】');
+    if (aCarried && !bCarried) return -1;
+    if (!aCarried && bCarried) return 1;
+
+    // 2. 締日が近い順
+    const aD = a.deadline ? getDaysUntil(Number(a.deadline)) : 999;
+    const bD = b.deadline ? getDaysUntil(Number(b.deadline)) : 999;
+    return aD - bD;
+  });
+  save(); render();
+  showToast('優先順位を自動並べ替えしました');
 }
 
 function updatePayment(i, key, value) {
@@ -823,7 +1967,7 @@ function togglePaid(i) {
   if (!p) return;
   p.paid = !p.paid;
   save(); render();
-  if (p.paid) showToast('✓ 支払い完了');
+  if (p.paid) { playGacko(); showToast('✓ 支払い完了'); }
 }
 
 function toggleNote(i) {
@@ -859,7 +2003,8 @@ function copyFromLastMonth() {
           name: p.name,
           amount: p.amount,
           note: p.note || '',
-          paid: false
+          paid: false,
+          deadline: p.deadline || ''
         });
       });
       save(); render();
@@ -956,6 +2101,7 @@ function render() {
   renderIncomeTemplates();
   renderIncomeHistory();
   renderPayments();
+  renderGambling();
   renderAllocation();
   renderArchive();
   calculate();
@@ -988,10 +2134,24 @@ function renderIncomeTemplates() {
       : "<button class=\"btn btn-success\" onclick=\"recordIncome(" + i + ")\">入金</button>";
     var nameVal = escapeHtml(item.name);
     var amtVal = escapeHtml(item.amount);
+    // 最後の入金日時を探す
+    var lastRecord = null;
+    var mdHistory = md.history || [];
+    for (var hi = mdHistory.length - 1; hi >= 0; hi--) {
+      if (mdHistory[hi].name === (item.name || '収入')) {
+        lastRecord = mdHistory[hi];
+        break;
+      }
+    }
+    var lastDateHtml = lastRecord
+      ? '<div style="font-size:10px;color:#9ca3af;margin-top:2px">最終入金：' + formatDate(lastRecord.date) + '</div>'
+      : '';
+
     html += "<div class=\"card\">";
     html += "<div class=\"card-row\">";
     html += "<input type=\"text\" class=\"input-name\" placeholder=\"収入名（例：給料）\" value=\"" + nameVal + "\" oninput=\"updateIncomeTemplate(" + i + ", &quot;name&quot;, this.value)\">";
     html += "</div>";
+    html += lastDateHtml;
     html += "<div class=\"card-row\">";
     html += "<input type=\"text\" class=\"input-amount\" placeholder=\"金額\" value=\"" + (amtVal ? Number(amtVal).toLocaleString() : '') + "\" inputmode=\"numeric\" onfocus=\"unformatAmountInput(this)\" onblur=\"formatAmountInput(this);updateIncomeTemplate(" + i + ", &quot;amount&quot;, getAmountValue(this))\" oninput=\"updateIncomeTemplate(" + i + ", &quot;amount&quot;, getAmountValue(this))\">";
     html += btnHtml;
@@ -1027,12 +2187,7 @@ function renderPayments() {
   const list = document.getElementById('paymentList');
   const payments = getMonthData().payments;
   if (payments.length === 0) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📋</div>
-        <div>支払いを追加してください<br>(家賃、ローン、カードなど)</div>
-      </div>
-    `;
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div>支払いを追加してください<br>(家賃、ローン、カードなど)</div></div>';
     return;
   }
 
@@ -1045,6 +2200,19 @@ function renderPayments() {
       ondragover="onDragOver(event, ${i})"
       ondrop="onDrop(event, ${i})"
     ` : '';
+
+    // 締日の残り日数
+    let deadlineHtml = '';
+    if (item.deadline) {
+      const d = getDaysUntil(Number(item.deadline));
+      const color = d <= 3 ? '#dc2626' : d <= 7 ? '#d97706' : '#059669';
+      deadlineHtml = '<span style="font-size:12px;font-weight:600;color:' + color + '">' + (d === 0 ? '⚠ 今日!' : '残' + d + '日') + '</span>';
+    }
+
+    // 通知ボタン
+    const calBtn = (item.deadline && !item.paid && !reorderMode)
+      ? '<button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;white-space:nowrap" onclick="addToCalendar(' + i + ')">📅 通知</button>'
+      : '';
 
     return `
     <div class="card ${item.paid ? 'paid' : ''}" data-idx="${i}" ${draggable} ${dragHandlers}>
@@ -1063,13 +2231,21 @@ function renderPayments() {
         </button>
         <button class="btn btn-ghost btn-icon" onclick="deletePayment(${i})" ${reorderMode ? 'disabled' : ''}>🗑</button>
       </div>
+      <div class="card-row" style="align-items:center;gap:6px">
+        <span style="font-size:12px;color:#6b7280;white-space:nowrap">締日:</span>
+        <input type="number" style="width:60px;text-align:center;font-size:13px;padding:6px 8px" placeholder="日" value="${item.deadline || ''}" min="1" max="31" inputmode="numeric" oninput="updatePayment(${i}, 'deadline', this.value)" ${reorderMode ? 'disabled' : ''}>
+        <span style="font-size:12px;color:#6b7280">日</span>
+        ${deadlineHtml}
+        ${calBtn}
+      </div>
       <div class="note-area ${noteOpen ? 'show' : ''}">
-        <textarea placeholder="メモ（引落日、カード会社など）" oninput="updatePayment(${i}, 'note', this.value)" ${reorderMode ? 'disabled' : ''}>${escapeHtml(item.note)}</textarea>
+        <textarea placeholder="メモ（カード会社など）" oninput="updatePayment(${i}, 'note', this.value)" ${reorderMode ? 'disabled' : ''}>${escapeHtml(item.note)}</textarea>
       </div>
     </div>
   `;
   }).join('');
 }
+
 
 function renderAllocation() {
   const md = getMonthData();
@@ -1206,7 +2382,8 @@ function calculate() {
   const totalPayment = md.payments.reduce((s, p) => s + Number(p.amount || 0), 0);
   const paidPayment = md.payments.filter(p => p.paid).reduce((s, p) => s + Number(p.amount || 0), 0);
   const unpaidPayment = totalPayment - paidPayment;
-  const remain = totalIncome - paidPayment;
+  const gamblingLoss = (md.gambling || []).reduce((s, g) => s + Number(g.amount || 0), 0);
+  const remain = totalIncome - paidPayment - gamblingLoss;
 
   document.getElementById('monthIncome').innerText = yen(totalIncome);
   document.getElementById('paymentTotal').innerText = yen(unpaidPayment);
@@ -1223,6 +2400,17 @@ function calculate() {
     }
   }
 
+  // ギャンブル損失の表示更新
+  const gamblingEl = document.getElementById('gamblingRow');
+  if (gamblingEl) {
+    if (gamblingLoss > 0) {
+      gamblingEl.style.display = 'flex';
+      document.getElementById('gamblingTotal').innerText = yen(gamblingLoss);
+    } else {
+      gamblingEl.style.display = 'none';
+    }
+  }
+
   const coverRate = unpaidPayment > 0 ? Math.min(100, (totalIncome / unpaidPayment) * 100) : 100;
   const bar = document.getElementById('progressBar');
   bar.style.width = coverRate + '%';
@@ -1234,6 +2422,7 @@ function calculate() {
 
   const remainEl = document.getElementById('remain').parentElement;
   remainEl.style.color = remain >= 0 ? '#4f46e5' : '#dc2626';
+  updateYabaMeter();
 }
 
 function exportData() {
@@ -1311,6 +2500,8 @@ function deleteAllData() {
 
 load();
 render();
+// アプリ起動時に督促チェック
+setTimeout(() => checkUrgentPayments(), 500);
 </script>
 
 </body>
