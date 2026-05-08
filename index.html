@@ -478,7 +478,7 @@ margin-bottom: 6px;
       <button class="btn btn-add" onclick="addIncome()">＋ 収入元を追加</button>
     </div>
 
-```
+
 <div class="section">
   <div class="section-header">
     <span class="section-title">入金履歴（今月）</span>
@@ -486,7 +486,7 @@ margin-bottom: 6px;
   </div>
   <div id="incomeHistoryList"></div>
 </div>
-```
+
 
   </div>
 
@@ -1071,10 +1071,10 @@ function renderPayments() {
       <div class="note-area ${noteOpen ? 'show' : ''}">
         <textarea placeholder="メモ（引落日、カード会社など）" oninput="updatePayment(${i}, 'note', this.value)" ${reorderMode ? 'disabled' : ''}>${escapeHtml(item.note)}</textarea>
 
-```
+
   </div>
 </div>
-```
+
 
 `;
 }).join(’’);
@@ -1102,7 +1102,7 @@ const allocated = Math.max(0, Math.min(available, need));
 const shortage = need - allocated;
 available -= allocated;
 
-```
+
   const cardClass = shortage === 0 ? '' : (allocated === 0 ? 'shortage' : 'partial');
   const statusBadge = shortage === 0
     ? '<span class="status-badge status-ok">✓ 支払い可能</span>'
@@ -1155,7 +1155,7 @@ if (paidWithIdx.length > 0) {
     `;
   });
 }
-```
+
 
 }
 
@@ -1186,7 +1186,7 @@ const paidCount = (m.payments || []).filter(p => p.paid).length;
 const totalCount = (m.payments || []).length;
 const remain = income - paymentTotal;
 
-```
+
 return `
   <div class="archive-month" onclick="jumpToMonth('${key}')">
     <div class="archive-title">${formatMonthDisplay(key)}</div>
@@ -1196,7 +1196,7 @@ return `
     <div class="archive-stat"><span>収支</span><b style="color:${remain >= 0 ? '#4f46e5' : '#dc2626'}">${remain >= 0 ? '+' : ''}${yen(remain)}円</b></div>
   </div>
 `;
-```
+
 
 }).join(’’);
 }
