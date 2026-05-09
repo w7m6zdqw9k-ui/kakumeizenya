@@ -665,9 +665,7 @@ function saveApiKey(){
   if(!key.startsWith('sk-ant-')){ toast('キーの形式が正しくありません（sk-ant-で始まるもの）'); return; }
   localStorage.setItem('anthropic_api_key', key);
   document.getElementById('apiKeyInput').value = '';
-  document.getElementById('apiKeySetup').style.background = 'rgba(16,185,129,.1)';
-  document.getElementById('apiKeySetup').style.borderColor = 'rgba(16,185,129,.3)';
-  document.getElementById('apiKeySetup').querySelector('div').innerText = '✅ APIキー設定済み';
+  checkApiKey();
   toast('✅ APIキーを保存しました！AI機能が使えます');
 }
 
@@ -683,14 +681,26 @@ function checkApiKey(){
     if(setup){
       setup.style.background = 'rgba(16,185,129,.08)';
       setup.style.borderColor = 'rgba(16,185,129,.3)';
-      const title = setup.querySelector('div');
-      if(title) title.innerText = '✅ APIキー設定済み - AI機能が使えます';
-      const inp = setup.querySelector('input');
-      if(inp) inp.placeholder = '変更する場合は新しいキーを入力';
     }
-    if(banner) banner.style.display = 'none';
+    const titleEl = setup ? setup.querySelector('[style*="fbbf24"]') : null;
+    if(titleEl) titleEl.innerText = '✅ APIキー設定済み';
+    else if(setup){
+      const firstDiv = setup.querySelector('div');
+      if(firstDiv) firstDiv.innerText = '✅ APIキー設定済み';
+    }
+    if(banner){
+      banner.style.background = 'rgba(16,185,129,.1)';
+      banner.style.borderColor = 'rgba(16,185,129,.3)';
+      const bannerTitle = banner.querySelector('div');
+      if(bannerTitle) bannerTitle.innerText = '✅ APIキー設定済み';
+      const bannerSub = banner.querySelectorAll('div')[1];
+      if(bannerSub) bannerSub.innerText = 'AI機能が使えます';
+    }
   } else {
-    if(banner) banner.style.display = 'flex';
+    if(banner){
+      banner.style.background = 'var(--navy)';
+      banner.style.borderColor = 'rgba(245,158,11,.4)';
+    }
   }
 }
 
@@ -1029,21 +1039,39 @@ async function runAI(){
     if(!apiKey){
       throw new Error('APIキーが設定されていません。AIタブ上部で設定してください。');
     }
-    // cors-anywhere プロキシ経由でCORS回避
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.anthropic.com/v1/messages');
-    const res = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
+    // まず直接アクセスを試みる（https環境では動く場合がある）
+    let res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+    } catch(corsErr) {
+      // CORSエラーならプロキシ経由で再試行
+      res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+    }
     const rawText = await res.text();
     if(!res.ok){
       throw new Error('APIエラー ' + res.status + ': ' + rawText.slice(0,200));
@@ -1708,4 +1736,6 @@ checkApiKey();
 </script>
 </body>
 </html>
-      
+
+
+  
