@@ -459,19 +459,84 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sa
     <div id="debtList"></div>
     <div class="divider"></div>
     <div class="sec-t">➕ 借入先を追加</div>
-    <div class="card">
-      <div class="mb"><div class="form-lbl">借入先名</div><input class="inp" id="dName" type="text" placeholder="例：アコム、楽天カード"></div>
+    <div class="card" id="debtFormCard" style="transition:all .3s;border:1px solid var(--bd)">
+      <!-- ① 種別選択 -->
+      <div class="mb">
+        <div class="form-lbl">種別</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="typeButtons"></div>
+        <input type="hidden" id="dType" value="消費者金融">
+      </div>
+
+      <!-- ② 会社名スクロール選択 -->
+      <div class="mb" id="namePickerWrap">
+        <div class="form-lbl">会社名（スクロールで選択 or 直接入力）</div>
+        <select class="inp" id="dNameSelect" onchange="onNameSelect(this.value)" style="margin-bottom:6px"></select>
+        <input class="inp" id="dName" type="text" placeholder="直接入力する場合はここに" style="font-size:13px">
+      </div>
+
+      <!-- ③ 残高 -->
+      <div class="mb">
+        <div class="form-lbl">残高（円）</div>
+        <input class="inp" id="dBal" type="number" inputmode="numeric" placeholder="0">
+      </div>
+
+      <!-- ④ 年利スクロール -->
       <div class="grid2 mb">
-        <div><div class="form-lbl">残高（円）</div><input class="inp" id="dBal" type="number" inputmode="numeric" placeholder="0"></div>
-        <div><div class="form-lbl">年利（%）</div><input class="inp" id="dRate" type="number" inputmode="decimal" placeholder="18.0"></div>
+        <div>
+          <div class="form-lbl">年利（%）<span style="font-size:10px;color:var(--t3)"> 上限18%</span></div>
+          <select class="inp" id="dRate"></select>
+        </div>
+        <div>
+          <div class="form-lbl">遅延損害金率（%）<span style="font-size:10px;color:var(--t3)"> 上限20%</span></div>
+          <select class="inp" id="dPenal"></select>
+        </div>
       </div>
-      <div class="grid2 mb">
-        <div><div class="form-lbl">月返済額（円）</div><input class="inp" id="dMon" type="number" inputmode="numeric" placeholder="0"></div>
-        <div><div class="form-lbl">遅延損害金率（%）</div><input class="inp" id="dPenal" type="number" inputmode="decimal" placeholder="20.0"></div>
+
+      <!-- ⑤ 月返済額 -->
+      <div class="mb">
+        <div class="form-lbl">月返済額（円）</div>
+        <input class="inp" id="dMon" type="number" inputmode="numeric" placeholder="0">
       </div>
-      <div class="mb"><div class="form-lbl">種別</div>
-        <select class="inp" id="dType"><option>消費者金融</option><option>カードローン</option><option>クレジット</option><option>銀行ローン</option><option>その他</option></select>
+
+      <!-- ⑥ 締日 -->
+      <div class="mb">
+        <div class="form-lbl">締日（毎月何日？）</div>
+        <select class="inp" id="dDeadline">
+          <option value="">締日なし</option>
+          <option value="1">毎月1日</option>
+          <option value="2">毎月2日</option>
+          <option value="3">毎月3日</option>
+          <option value="4">毎月4日</option>
+          <option value="5">毎月5日</option>
+          <option value="6">毎月6日</option>
+          <option value="7">毎月7日</option>
+          <option value="8">毎月8日</option>
+          <option value="9">毎月9日</option>
+          <option value="10">毎月10日</option>
+          <option value="11">毎月11日</option>
+          <option value="12">毎月12日</option>
+          <option value="13">毎月13日</option>
+          <option value="14">毎月14日</option>
+          <option value="15">毎月15日</option>
+          <option value="16">毎月16日</option>
+          <option value="17">毎月17日</option>
+          <option value="18">毎月18日</option>
+          <option value="19">毎月19日</option>
+          <option value="20">毎月20日</option>
+          <option value="21">毎月21日</option>
+          <option value="22">毎月22日</option>
+          <option value="23">毎月23日</option>
+          <option value="24">毎月24日</option>
+          <option value="25">毎月25日</option>
+          <option value="26">毎月26日</option>
+          <option value="27">毎月27日</option>
+          <option value="28">毎月28日</option>
+          <option value="29">毎月29日</option>
+          <option value="30">毎月30日</option>
+          <option value="31">毎月31日</option>
+        </select>
       </div>
+
       <button class="btn-p" onclick="addDebt()">追加して支払いに反映する</button>
     </div>
     <div class="sec-t">📊 借入サマリー</div>
@@ -482,7 +547,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sa
         <div><div style="font-size:13px;color:var(--t2)">月利息合計</div><div style="font-size:10px;color:var(--danger)">毎月「消える」お金</div></div>
         <span style="font-weight:700;color:#fbbf24;font-variant-numeric:tabular-nums" id="dsInt">0円</span>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:13px;color:var(--t2)">元本返済分</span><span style="font-weight:700;color:#34d399;font-variant-numeric:tabular-nums" id="dsPri">0円</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd)"><span style="font-size:13px;color:var(--t2)">元本返済分</span><span style="font-weight:700;color:#34d399;font-variant-numeric:tabular-nums" id="dsPri">0円</span></div>
+      <button onclick="exportDebtForSimulator()" style="width:100%;margin-top:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+        🚀 返済シミュレーターに送る
+      </button>
+      <div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px">借入データをシミュレーターアプリにエクスポートします</div>
     </div>
   </div>
 
@@ -752,6 +821,7 @@ function go(name){
   document.getElementById('ni-'+name).classList.add('on');
   if(name==='alloc') renderAlloc();
   if(name==='gamble'){ renderGamble(); initGambleDateInput(); }
+  if(name==='debt') setTimeout(()=>initDebtForm(), 50);
   window.scrollTo(0,0);
 }
 
@@ -762,6 +832,7 @@ function debtTab(el, name){
   if(el && el.classList) el.classList.add('on');
   if(name==='strat') updateOrder();
   if(name==='tips') renderTips('all');
+  if(name==='list') setTimeout(()=>initDebtForm(), 50);
 }
 
 // ===== INCOME TEMPLATES =====
@@ -907,7 +978,7 @@ function renderDebtPayList(){
           <div style="display:flex;justify-content:space-between;align-items:flex-start">
             <div>
               <div style="font-size:13px;font-weight:600;${paid?'text-decoration:line-through;color:var(--t3)':''}">${esc(d.name)}</div>
-              <div class="debt-pay-meta">${esc(d.type)} / 年利${d.rate}% / 残${yen(d.bal)}円</div>
+              <div class="debt-pay-meta">${esc(d.type)} / 年利${d.rate}% / 残${yen(d.bal)}円${d.deadline?' / 毎月'+d.deadline+'日':''}</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:16px;font-weight:700;color:${paid?'var(--t3)':'#f87171'};font-variant-numeric:tabular-nums">${yen(d.mon)}円</div>
@@ -916,6 +987,10 @@ function renderDebtPayList(){
           </div>
           ${d.penal?`<div style="font-size:10px;color:#fca5a5;margin-top:4px">⚠️ 遅延損害金率 ${d.penal}%</div>`:''}
           ${paid?'<div style="font-size:11px;color:#34d399;margin-top:4px">✓ 返済完了</div>':''}
+          ${d.deadline?`<div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+            <span style="font-size:11px;color:#fbbf24">📅 毎月${d.deadline}日が返済日</span>
+            <button onclick="addDebtToGoogleCalendar(${i})" style="font-size:10px;background:rgba(66,133,244,.2);color:#4285f4;border:1px solid rgba(66,133,244,.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:inherit">Googleカレンダーに追加</button>
+          </div>`:''}
         </div>
       </div>
     </div>`;
@@ -954,6 +1029,7 @@ function renderPayments(){
       <div style="display:flex;align-items:center;gap:8px">
         <input type="number" inputmode="numeric" class="inp" style="width:120px;text-align:right" placeholder="金額" value="${p.amount||''}" oninput="updatePay(${i},'amount',this.value)" ${reorderMode?'disabled':''}>
         <button class="note-toggle ${p.note?'has-note':''}" onclick="toggleNote(${i})" ${reorderMode?'disabled':''}>${p.note?'📝 メモあり':'＋ メモ'}</button>
+        <button class="del-btn" onclick="addToGoogleCalendar(${i})" ${reorderMode?'disabled':''} title="Googleカレンダーに追加" style="color:#4285f4;background:rgba(66,133,244,.15);border-color:rgba(66,133,244,.3)">📅</button>
         <button class="del-btn" onclick="delPay(${i})" ${reorderMode?'disabled':''}>🗑</button>
       </div>
       <div class="note-area ${openNotes[i]?'open':''}">
@@ -961,6 +1037,102 @@ function renderPayments(){
       </div>
     </div>`;
   }).join('');
+}
+
+// ===== GOOGLE CALENDAR =====
+function addDebtToGoogleCalendar(i){
+  const d = S.debts[i];
+  if(!d || !d.deadline){ toast('締日が設定されていません'); return; }
+  const today = new Date();
+  const [y, m] = S.currentMonth.split('-').map(Number);
+  const day = Number(d.deadline);
+  let targetDate = new Date(y, m-1, day);
+  if(targetDate < today) targetDate = new Date(y, m, day);
+  const amount = d.mon ? yen(d.mon)+'円' : '';
+  const title = encodeURIComponent('💳 返済期限：' + d.name + (amount?' '+amount:''));
+  const detail = encodeURIComponent(d.name + 'の返済日です。' + (amount?amount:'') + ' 忘れずに返済しましょう！');
+  const pad = n=>String(n).padStart(2,'0');
+  const dateStr = targetDate.getFullYear()+pad(targetDate.getMonth()+1)+pad(targetDate.getDate());
+  const gcalUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    +'&text='+title+'&dates='+dateStr+'/'+dateStr+'&details='+detail;
+  showCalendarModal(gcalUrl, d.name+'（返済）', targetDate);
+}
+
+function addToGoogleCalendar(i){
+  const md = getMD();
+  const p = md.payments[i];
+  if(!p){ return; }
+
+  // 締日から今月 or 来月の日付を計算
+  const today = new Date();
+  const [y, m] = S.currentMonth.split('-').map(Number);
+  // 支払い名と金額
+  const name = p.name || '支払い';
+  const amount = p.amount ? yen(p.amount) + '円' : '';
+  const title = encodeURIComponent('💳 ' + name + (amount ? ' ' + amount : ''));
+  const detail = encodeURIComponent('家計やりくりアプリの支払い期限です。' + name + (amount?' '+amount:'') + ' 忘れずに支払いましょう！');
+
+  // 日付（締日があれば使う、なければ月末）
+  let targetDate;
+  if(p.deadline){
+    const day = Number(p.deadline);
+    targetDate = new Date(y, m-1, day);
+    // 過ぎていたら来月
+    if(targetDate < today) targetDate = new Date(y, m, day);
+  } else {
+    // 月末
+    targetDate = new Date(y, m, 0);
+  }
+
+  const pad = n => String(n).padStart(2,'0');
+  const dateStr = targetDate.getFullYear() + pad(targetDate.getMonth()+1) + pad(targetDate.getDate());
+
+  // Googleカレンダーのリンク生成
+  const gcalUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + title
+    + '&dates=' + dateStr + '/' + dateStr
+    + '&details=' + detail;
+
+  // モーダルで案内
+  showCalendarModal(gcalUrl, name, targetDate);
+}
+
+function showCalendarModal(url, name, date){
+  const existing = document.getElementById('calModal');
+  if(existing) existing.remove();
+
+  const d = date;
+  const dateLabel = (d.getMonth()+1) + '月' + d.getDate() + '日';
+
+  const modal = document.createElement('div');
+  modal.id = 'calModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:flex;align-items:flex-end;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:var(--s);border-radius:20px 20px 16px 16px;padding:20px;width:100%;max-width:560px">
+      <div style="text-align:center;font-size:28px;margin-bottom:8px">📅</div>
+      <div style="font-size:15px;font-weight:700;text-align:center;margin-bottom:4px">Googleカレンダーに追加</div>
+      <div style="font-size:13px;color:var(--t2);text-align:center;margin-bottom:16px">${esc(name)} の支払い期限（${dateLabel}）を登録します</div>
+
+      <a href="${url}" target="_blank" rel="noopener"
+        style="display:block;background:#4285f4;color:#fff;border-radius:12px;padding:14px;text-align:center;font-size:15px;font-weight:700;text-decoration:none;margin-bottom:10px"
+        onclick="setTimeout(()=>document.getElementById('calModal').remove(),300)">
+        📅 Googleカレンダーで開く
+      </a>
+
+      <div style="background:var(--s2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--t2);line-height:1.7">
+        📱 <b style="color:var(--t)">Googleカレンダーアプリがない場合</b><br>
+        → <a href="https://apps.apple.com/jp/app/google-%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC/id909319292" target="_blank" style="color:#4285f4">App Store でダウンロード（無料）</a><br><br>
+        📱 <b style="color:var(--t)">iPhoneカレンダーを使う場合</b><br>
+        → カレンダーアプリから手動で追加してください
+      </div>
+
+      <button onclick="document.getElementById('calModal').remove()"
+        style="width:100%;background:var(--s2);color:var(--t2);border:1px solid var(--bd);border-radius:10px;padding:12px;font-size:14px;cursor:pointer;font-family:inherit">
+        閉じる
+      </button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
 }
 
 // ===== ALLOCATION =====
@@ -1141,6 +1313,33 @@ async function runAI(){
 }
 
 // ===== IMPORT / EXPORT =====
+function exportDebtForSimulator(){
+  if(!S.debts.length){ toast('借入先を登録してください'); return; }
+  const exportObj = {
+    version: 'simulator_v1',
+    exportedAt: new Date().toISOString(),
+    debts: S.debts.map(d=>({
+      name: d.name,
+      bal: d.bal,
+      rate: d.rate,
+      mon: d.mon,
+      type: d.type,
+      penal: d.penal||0,
+      deadline: d.deadline||''
+    }))
+  };
+  const json = JSON.stringify(exportObj, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  a.href = url;
+  a.download = '返済シミュレーター用データ_' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('🚀 シミュレーター用データをエクスポートしました！');
+}
+
 function exportData(){
   const exportObj = {
     version: 2,
@@ -1358,18 +1557,145 @@ function totBal(){ return S.debts.reduce((s,d)=>s+d.bal,0); }
 function totMon(){ return S.debts.reduce((s,d)=>s+d.mon,0); }
 function totInt(){ return S.debts.reduce((s,d)=>s+d.bal*(d.rate/100/12),0); }
 
+// ===== 借入先データ =====
+const LOAN_DATA = {
+  '消費者金融': {
+    color:'#f87171', rateMin:3.0, rateMax:18.0, rateStep:0.5, rateDef:18.0, penalMax:20.0, penalDef:20.0,
+    names:['アコム','アイフル','プロミス（SMBCコンシューマーファイナンス）','レイク（新生フィナンシャル）','SMBCモビット','ノーローン','ベルーナノーティス','フタバ','セントラル','キャレント','フクホー','エイワ','LINEポケットマネー','dスマホローン','その他（直接入力）']
+  },
+  'カードローン': {
+    color:'#fbbf24', rateMin:1.5, rateMax:18.0, rateStep:0.5, rateDef:14.0, penalMax:20.0, penalDef:20.0,
+    names:['楽天カードローン','三菱UFJ銀行カードローン バンクイック','三井住友銀行カードローン','みずほ銀行カードローン','イオン銀行カードローン','オリックス銀行カードローン','auじぶん銀行カードローン','住信SBIネット銀行カードローン','ソニー銀行カードローン','セブン銀行カードローン','ジャパンネット銀行（PayPay銀行）','VIPローンカード（ドコモファイナンス）','ファミペイローン','その他（直接入力）']
+  },
+  'クレジット': {
+    color:'#a78bfa', rateMin:12.0, rateMax:18.0, rateStep:0.5, rateDef:15.0, penalMax:20.0, penalDef:20.0,
+    names:['楽天カード','イオンカード','三井住友カード','JCBカード','ダイナースクラブ','セゾンカード','UCカード','オリコカード','ジャックスカード','ライフカード','その他（直接入力）']
+  },
+  '銀行系ローン': {
+    color:'#34d399', rateMin:1.0, rateMax:15.0, rateStep:0.5, rateDef:8.0, penalMax:20.0, penalDef:20.0,
+    names:['三菱UFJ銀行','三井住友銀行','みずほ銀行','りそな銀行','ゆうちょ銀行','地方銀行（ラピッド等）','信用金庫ローン','労働金庫（ろうきん）','JAバンク','その他（直接入力）']
+  },
+  '住宅ローン': {
+    color:'#60a5fa', rateMin:0.5, rateMax:4.0, rateStep:0.1, rateDef:1.0, penalMax:14.6, penalDef:14.6,
+    names:['フラット35（住宅金融支援機構）','三菱UFJ銀行住宅ローン','三井住友銀行住宅ローン','みずほ銀行住宅ローン','ソニー銀行住宅ローン','住信SBIネット銀行住宅ローン','auじぶん銀行住宅ローン','楽天銀行住宅ローン','イオン銀行住宅ローン','その他（直接入力）']
+  },
+  'カーローン': {
+    color:'#fb923c', rateMin:2.0, rateMax:9.0, rateStep:0.5, rateDef:4.0, penalMax:20.0, penalDef:20.0,
+    names:['トヨタファイナンス','ホンダファイナンス','日産フィナンシャルサービス','マツダオートローン','スバルファイナンス','ダイハツファイナンス','スズキファイナンス','JAオートローン','信販系カーローン','その他（直接入力）']
+  },
+  '教育ローン': {
+    color:'#6ee7b7', rateMin:0.5, rateMax:4.0, rateStep:0.1, rateDef:1.5, penalMax:14.6, penalDef:14.6,
+    names:['日本学生支援機構（奨学金）','国の教育ローン（日本政策金融公庫）','銀行教育ローン','信用金庫教育ローン','その他（直接入力）']
+  },
+  'おまとめローン': {
+    color:'#c4b5fd', rateMin:6.0, rateMax:18.0, rateStep:0.5, rateDef:12.0, penalMax:20.0, penalDef:20.0,
+    names:['アコム おまとめローン','アイフル おまとめMAX','プロミス おまとめローン','レイク おまとめローン','楽天銀行スーパーローン','みずほ銀行おまとめローン','その他（直接入力）']
+  },
+  'その他': {
+    color:'#94a3b8', rateMin:0.0, rateMax:18.0, rateStep:0.5, rateDef:10.0, penalMax:20.0, penalDef:20.0,
+    names:['質屋・担保ローン','給与ファクタリング','親族・知人からの借入','その他（直接入力）']
+  }
+};
+
+function initDebtForm(){
+  // 種別ボタン
+  const btns = document.getElementById('typeButtons');
+  if(!btns) return;
+  btns.innerHTML = Object.keys(LOAN_DATA).map((t,i)=>{
+    const d = LOAN_DATA[t];
+    return '<button onclick="selectType(\'' + t + '\')" id="typebtn-' + i + '" '
+      + 'style="font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid ' + d.color + '44;background:' + d.color + '22;color:' + d.color + ';cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500">'
+      + t + '</button>';
+  }).join('');
+  selectType('消費者金融');
+
+  // 年利・遅延損害金はselectTypeで初期化される
+}
+
+function selectType(type){
+  const data = LOAN_DATA[type];
+  if(!data) return;
+  // ボタンの見た目更新
+  Object.keys(LOAN_DATA).forEach((t,i)=>{
+    const btn = document.getElementById('typebtn-' + i);
+    if(btn){
+      const td = LOAN_DATA[t];
+      btn.style.background = t===type ? td.color : td.color+'22';
+      btn.style.color = t===type ? '#fff' : td.color;
+      btn.style.borderColor = t===type ? td.color : td.color+'44';
+      btn.style.fontWeight = t===type ? '700' : '500';
+      btn.style.transform = t===type ? 'scale(1.05)' : 'scale(1)';
+      btn.style.boxShadow = t===type ? '0 2px 8px '+td.color+'66' : 'none';
+    }
+  });
+  // 会社名セレクト更新
+  const nameSelect = document.getElementById('dNameSelect');
+  if(nameSelect){
+    nameSelect.innerHTML = '<option value="">-- 会社を選ぶ --</option>' +
+      data.names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  }
+  // 年利選択肢（実際の金利帯のみ）
+  const rateEl = document.getElementById('dRate');
+  if(rateEl){
+    rateEl.innerHTML = '';
+    const step = data.rateStep || 0.5;
+    const def = data.rateDef || data.rateMax;
+    for(let r=Math.round(data.rateMin/step); r<=Math.round(data.rateMax/step); r++){
+      const v = (r*step).toFixed(step<0.5?1:1);
+      const opt = document.createElement('option');
+      opt.value = v; opt.text = v + '%';
+      if(Math.abs(parseFloat(v)-def)<0.01) opt.selected=true;
+      rateEl.appendChild(opt);
+    }
+  }
+  // 遅延損害金
+  const penalEl = document.getElementById('dPenal');
+  if(penalEl){
+    penalEl.innerHTML = '';
+    const pdef = data.penalDef || data.penalMax;
+    for(let r=0; r<=Math.round(data.penalMax/0.5); r++){
+      const v = (r*0.5).toFixed(1);
+      const opt = document.createElement('option');
+      opt.value = v; opt.text = v + '%';
+      if(Math.abs(parseFloat(v)-pdef)<0.01) opt.selected=true;
+      penalEl.appendChild(opt);
+    }
+  }
+  document.getElementById('dType').value = type;
+  document.getElementById('dName').value = '';
+  // フォーム枠線だけ種別カラーに
+  const card = document.getElementById('debtFormCard');
+  if(card){
+    card.style.borderColor = data.color+'88';
+  }
+}
+
+function onNameSelect(val){
+  const inp = document.getElementById('dName');
+  if(val && val !== 'その他（直接入力）'){
+    inp.value = val;
+  } else {
+    inp.value = '';
+    inp.focus();
+  }
+}
+
 function addDebt(){
-  const name=document.getElementById('dName').value.trim();
+  const nameInput = document.getElementById('dName').value.trim();
+  const nameSelect = document.getElementById('dNameSelect').value;
+  const name = nameInput || (nameSelect && nameSelect !== 'その他（直接入力）' ? nameSelect : '');
   const bal=parseFloat(document.getElementById('dBal').value)||0;
   const rate=parseFloat(document.getElementById('dRate').value)||0;
   const mon=parseFloat(document.getElementById('dMon').value)||0;
   const penal=parseFloat(document.getElementById('dPenal').value)||0;
   const type=document.getElementById('dType').value;
+  const deadline=document.getElementById('dDeadline').value||'';
   if(!name||bal<=0){ toast('借入先名と残高を入力してください'); return; }
-  S.debts.push({name,bal,rate,mon,type,penal});
+  S.debts.push({name,bal,rate,mon,type,penal,deadline});
   if(!S.initTotal) S.initTotal=totBal();
   save(); renderAll();
-  ['dName','dBal','dRate','dMon','dPenal'].forEach(id=>document.getElementById(id).value='');
+  ['dName','dBal','dMon'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('dDeadline').value='';
   toast('✅ '+name+' を追加しました。支払いページに反映されました！');
 }
 function delDebt(i){
@@ -1463,6 +1789,7 @@ function renderDebtList(){
       </div>
       <div style="display:flex;gap:6px">
         <button class="del-btn" style="flex:1;color:var(--ac);background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.3)" onclick="editDebt(${i})">✏️ 編集</button>
+        ${d.deadline?`<button class="del-btn" style="color:#4285f4;background:rgba(66,133,244,.15);border-color:rgba(66,133,244,.3)" onclick="addDebtToGoogleCalendar(${i})" title="Googleカレンダーに追加">📅</button>`:''}
         <button class="del-btn" style="flex:1" onclick="delDebt(${i})">🗑 削除</button>
       </div>
     </div>`).join('<div style="height:8px"></div>');
@@ -1825,6 +2152,7 @@ localStorage.removeItem('kakei_v1');
 load();
 renderAll();
 renderHabits();
+initDebtForm();
 renderTips('all');
 updateDailyBanner();
 checkApiKey();
