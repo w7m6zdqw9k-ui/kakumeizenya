@@ -129,11 +129,30 @@ svg.ring{transform:rotate(-90deg)}
 <div class="app">
 
 <div class="hdr">
-  <div class="hdr-title">💰 返済シミュレーター</div>
-  <div class="hdr-sub">借金ゼロへの最短ルートを一緒に見つけよう</div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div class="hdr-title">💰 返済シミュレーター</div>
+      <div class="hdr-sub">借金ゼロへの最短ルートを一緒に見つけよう</div>
+    </div>
+    <div id="apiKeyBadge" style="font-size:10px;padding:4px 10px;border-radius:10px;cursor:pointer;white-space:nowrap;margin-top:2px"></div>
+  </div>
 </div>
 
 <!-- ステップインジケーター -->
+<!-- APIキー設定モーダル -->
+<div id="apiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;padding:20px;align-items:flex-end;justify-content:center">
+  <div style="background:var(--s);border-radius:20px 20px 16px 16px;padding:20px;width:100%;max-width:600px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">🔑 APIキー設定</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:12px">家計アプリと同じキーが使えます。console.anthropic.com で取得してください。</div>
+    <input class="inp" id="simApiKeyInput" type="password" placeholder="sk-ant-..." style="margin-bottom:10px">
+    <div style="display:flex;gap:8px">
+      <button onclick="saveSimApiKey()" class="btn-p" style="flex:2">保存</button>
+      <button onclick="document.getElementById('apiModal').style.display='none'" class="btn-ghost" style="flex:1">閉じる</button>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:center">キーはこの端末のブラウザにのみ保存されます</div>
+  </div>
+</div>
+
 <div class="steps" id="stepBar">
   <div class="step-item active" id="s0"><div class="step-circle">1</div><div class="step-label">借入情報</div></div>
   <div class="step-item" id="s1"><div class="step-circle">2</div><div class="step-label">目標設定</div></div>
@@ -848,25 +867,10 @@ async function getAIAdvice(){
     +'4. 励ましのメッセージ\n\n'
     +'親しみやすく、前向きなトーンで書いてください。';
   try{
-    let res;
-    try{
-      res=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-      });
-    }catch(e){
-      res=await fetch('https://corsproxy.io/?'+encodeURIComponent('https://api.anthropic.com/v1/messages'),{
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-      });
-    }
-    const data=await res.json();
-    const text=data.content?.map(c=>c.text||'').join('')||'アドバイスを取得できませんでした。';
-    document.getElementById('aiAdvice').innerHTML=`<div class="ai-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+    const text = await callClaude(prompt, 1000);
+    document.getElementById('aiAdvice').innerHTML='<div class="ai-bubble">'+text.replace(/\n/g,'<br>')+'</div>';
   }catch(e){
-    document.getElementById('aiAdvice').innerHTML+=`<div class="ai-bubble">エラーが発生しました：${e.message}</div>`;
+    document.getElementById('aiAdvice').innerHTML+='<div class="ai-bubble">エラーが発生しました：'+e.message+'</div>';
   }
   btn.disabled=false; btn.innerText='✨ AIに詳しいアドバイスをもらう';
 }
@@ -894,29 +898,14 @@ async function submitEvent(){
   let aiComment='';
   if(apiKey){
     try{
-      const prompt='返済計画中に以下の'+(type==='income'?'臨時収入':'緊急支出')+'が発生しました。\n\n'
+      const evPrompt='返済計画中に以下の'+(type==='income'?'臨時収入':'緊急支出')+'が発生しました。\n\n'
         +'理由：'+reason+'\n金額：'+yen(amt)+'円\n\n'
         +'現在の借入状況：\n'+S.debts.map(d=>'・'+d.name+'：残'+yen(d.bal)+'円 / 年利'+d.rate+'%').join('\n')+'\n\n'
         +(type==='income'
           ? 'この臨時収入をどの借入先の繰上返済に使うべきか、150文字以内で具体的にアドバイスしてください。'
           : 'この緊急支出が返済計画に与える影響と対処法を150文字以内で具体的にアドバイスしてください。');
-      let res;
-      try{
-        res=await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-          body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
-        });
-      }catch(e){
-        res=await fetch('https://corsproxy.io/?'+encodeURIComponent('https://api.anthropic.com/v1/messages'),{
-          method:'POST',
-          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-          body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
-        });
-      }
-      const data=await res.json();
-      aiComment=data.content?.map(c=>c.text||'').join('')||'';
-    }catch(e){}
+      aiComment = await callClaude(evPrompt, 300);
+    }catch(e){ aiComment=''; }
   }
   // イベントを記録
   S.events.push({type,reason,amount:amt,date:new Date().toISOString(),aiComment});
@@ -973,8 +962,85 @@ function showBadge(icon,title,msg){
   document.getElementById('badgeModal').classList.add('on');
 }
 
+// ===== API CALL =====
+async function callClaude(prompt, maxTokens){
+  const apiKey = localStorage.getItem('anthropic_api_key') || S.apiKey;
+  if(!apiKey) throw new Error('APIキーが設定されていません');
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens || 1000,
+    messages: [{ role: 'user', content: prompt }]
+  });
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey,
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+  // 直接アクセスを試みる
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers, body });
+    if(res.ok){
+      const data = await res.json();
+      return data.content?.map(c=>c.text||'').join('') || '';
+    }
+  } catch(e) {}
+  // 複数のプロキシで順番に試みる
+  const proxies = [
+    'https://corsproxy.io/?url=' + encodeURIComponent('https://api.anthropic.com/v1/messages'),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.anthropic.com/v1/messages'),
+    'https://cors-anywhere.herokuapp.com/https://api.anthropic.com/v1/messages'
+  ];
+  const proxyHeaders = {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey,
+    'anthropic-version': '2023-06-01'
+  };
+  for(const proxyUrl of proxies){
+    try{
+      const res2 = await fetch(proxyUrl, { method:'POST', headers:proxyHeaders, body });
+      if(res2.ok){
+        const data2 = await res2.json();
+        return data2.content?.map(c=>c.text||'').join('') || '';
+      }
+    }catch(e){ continue; }
+  }
+  throw new Error('接続できませんでした。ネットワークを確認してください。');
+}
+
+// ===== API KEY =====
+function updateApiKeyBadge(){
+  const key = localStorage.getItem('anthropic_api_key');
+  const badge = document.getElementById('apiKeyBadge');
+  if(!badge) return;
+  if(key){
+    badge.innerText = '✅ AI設定済み';
+    badge.style.background = 'rgba(16,185,129,.2)';
+    badge.style.color = '#34d399';
+    badge.style.border = '1px solid rgba(16,185,129,.3)';
+  } else {
+    badge.innerText = '🔑 APIキー未設定';
+    badge.style.background = 'rgba(245,158,11,.15)';
+    badge.style.color = '#fbbf24';
+    badge.style.border = '1px solid rgba(245,158,11,.3)';
+  }
+  badge.onclick = ()=>document.getElementById('apiModal').style.display='flex';
+}
+
+function saveSimApiKey(){
+  const key = document.getElementById('simApiKeyInput').value.trim();
+  if(!key){ toast('APIキーを入力してください'); return; }
+  if(!key.startsWith('sk-ant-')){ toast('形式が正しくありません（sk-ant-で始まるもの）'); return; }
+  localStorage.setItem('anthropic_api_key', key);
+  document.getElementById('apiModal').style.display='none';
+  document.getElementById('simApiKeyInput').value='';
+  updateApiKeyBadge();
+  toast('✅ APIキーを保存しました！');
+}
+
 // ===== 初期化 =====
 renderDebtListS();
+updateApiKeyBadge();
 </script>
 </body>
 </html>
