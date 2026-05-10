@@ -332,7 +332,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sa
   <div class="card">
     <div class="mb"><div class="form-lbl">名目（例：パチンコ、競馬）</div><input class="inp" id="gName" type="text" placeholder="何で負けた？"></div>
     <div class="grid2 mb">
-      <div><div class="form-lbl">負けた金額（円）</div><input class="inp" id="gAmt" type="number" inputmode="numeric" placeholder="0"></div>
+      <div><div class="form-lbl">負けた金額（円）</div><input class="inp" id="gAmt" type="text" inputmode="numeric" placeholder="0" onfocus="unfmtAmt(this)" onblur="fmtAmt(this)"></div>
       <div><div class="form-lbl">日付</div><input class="inp" id="gDate" type="date"></div>
     </div>
     <button class="btn-p" style="background:linear-gradient(135deg,#dc2626,#991b1b)" onclick="addGamble()">🎰 記録する</button>
@@ -477,7 +477,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sa
       <!-- ③ 残高 -->
       <div class="mb">
         <div class="form-lbl">残高（円）</div>
-        <input class="inp" id="dBal" type="number" inputmode="numeric" placeholder="0">
+        <input class="inp" id="dBal" type="text" inputmode="numeric" placeholder="0" onfocus="unfmtAmt(this)" onblur="fmtAmt(this)">
       </div>
 
       <!-- ④ 年利スクロール -->
@@ -495,7 +495,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sa
       <!-- ⑤ 月返済額 -->
       <div class="mb">
         <div class="form-lbl">月返済額（円）</div>
-        <input class="inp" id="dMon" type="number" inputmode="numeric" placeholder="0">
+        <input class="inp" id="dMon" type="text" inputmode="numeric" placeholder="0" onfocus="unfmtAmt(this)" onblur="fmtAmt(this)">
       </div>
 
       <!-- ⑥ 締日 -->
@@ -679,6 +679,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sa
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== 金額フォーマット =====
+function fmtAmt(el){
+  const raw = el.value.replace(/,/g,'');
+  const num = parseInt(raw,10);
+  if(!isNaN(num) && raw!=='') el.value = num.toLocaleString();
+}
+function unfmtAmt(el){ el.value = el.value.replace(/,/g,''); }
+function getAmt(el){ return el.value.replace(/,/g,''); }
+
 // ===== STATE =====
 // ===== SOUNDS (元アプリと同じ方式・毎回新規AudioContext) =====
 function _note(ctx, freq, start, dur, vol){
@@ -893,7 +902,7 @@ function renderIncomeTpls(){
         <input class="inp inp-name" type="text" placeholder="収入名（給料など）" value="${esc(t.name)}" oninput="updateTpl(${i},'name',this.value)">
       </div>
       <div class="ic-row">
-        <input class="inp inp-amt" type="number" inputmode="numeric" placeholder="金額" value="${t.amount||''}" oninput="updateTpl(${i},'amount',this.value)" style="width:120px;text-align:right">
+        <input class="inp inp-amt" type="text" inputmode="numeric" placeholder="金額" value="${t.amount?Number(t.amount).toLocaleString():''}" onfocus="unfmtAmt(this)" onblur="fmtAmt(this);updateTpl(${i},'amount',getAmt(this))" oninput="updateTpl(${i},'amount',getAmt(this))" style="width:120px;text-align:right">
         ${rec
           ? `<button class="btn-ghost" style="font-size:12px;padding:8px;color:#fbbf24;border-color:#fbbf24" onclick="cancelIncome(${i})">↩ 取消</button>`
           : `<button class="btn-p" style="flex:1;padding:9px;font-size:13px" onclick="recordIncome(${i})">入金</button>`
@@ -923,13 +932,19 @@ let reorderMode=false;
 let openNotes={};
 
 function addPay(){
-  getMD().payments.push({name:'',amount:'',note:'',paid:false});
+  getMD().payments.push({name:'',amount:'',note:'',paid:false,deadline:''});
   save(); renderPayments();
 }
 function updatePay(i,key,val){ const md=getMD(); if(md.payments[i]) md.payments[i][key]=val; save(); if(key!=='note') renderHome(); }
 function delPay(i){
-  if(!confirm('この支払いを削除しますか？')) return;
-  getMD().payments.splice(i,1); delete openNotes[i]; save(); renderAll();
+  const md = getMD();
+  if(!md.payments[i]) return;
+  const name = md.payments[i].name || '支払い';
+  md.payments.splice(i,1);
+  delete openNotes[i];
+  save();
+  renderAll();
+  toast('🗑 ' + name + ' を削除しました');
 }
 function togglePaid(i){
   const p=getMD().payments[i]; if(!p) return;
@@ -1027,16 +1042,50 @@ function renderPayments(){
         <input type="text" class="inp" style="flex:1;${p.paid?'text-decoration:line-through;color:var(--t3)':''}" placeholder="支払い名" value="${esc(p.name)}" oninput="updatePay(${i},'name',this.value)" ${reorderMode?'disabled':''}>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <input type="number" inputmode="numeric" class="inp" style="width:120px;text-align:right" placeholder="金額" value="${p.amount||''}" oninput="updatePay(${i},'amount',this.value)" ${reorderMode?'disabled':''}>
-        <button class="note-toggle ${p.note?'has-note':''}" onclick="toggleNote(${i})" ${reorderMode?'disabled':''}>${p.note?'📝 メモあり':'＋ メモ'}</button>
-        <button class="del-btn" onclick="addToGoogleCalendar(${i})" ${reorderMode?'disabled':''} title="Googleカレンダーに追加" style="color:#4285f4;background:rgba(66,133,244,.15);border-color:rgba(66,133,244,.3)">📅</button>
+        <input type="text" inputmode="numeric" class="inp" style="width:120px;text-align:right" placeholder="金額" value="${p.amount?Number(p.amount).toLocaleString():''}" onfocus="unfmtAmt(this)" onblur="fmtAmt(this);updatePay(${i},'amount',getAmt(this))" oninput="updatePay(${i},'amount',getAmt(this))" ${reorderMode?'disabled':''}>
+        <div style="display:flex;align-items:center;gap:6px;flex:1">
+          <button onclick="toggleNote(${i})" ${reorderMode?'disabled':''} style="background:${openNotes[i]?'rgba(99,102,241,.2)':'var(--s3)'};color:#fff;border:1px solid ${openNotes[i]?'rgba(99,102,241,.5)':'var(--bd)'};border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">
+            ${p.note?'📝 メモ':'📝'}
+          </button>
+          ${p.deadline?`<span style="font-size:12px;font-weight:700;color:${getDaysColor(p.deadline)};background:${getDaysColor(p.deadline)}22;border:1px solid ${getDaysColor(p.deadline)}44;border-radius:8px;padding:5px 9px;white-space:nowrap">${getDaysLabel(p.deadline)}</span>`:''}
+        </div>
         <button class="del-btn" onclick="delPay(${i})" ${reorderMode?'disabled':''}>🗑</button>
       </div>
       <div class="note-area ${openNotes[i]?'open':''}">
         <textarea class="inp" style="margin-top:6px;resize:vertical;min-height:36px;font-size:12px" placeholder="メモ（引落日、カード会社など）" oninput="updatePay(${i},'note',this.value)" ${reorderMode?'disabled':''}>${esc(p.note)}</textarea>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <span style="font-size:12px;color:var(--t2);white-space:nowrap">締日：</span>
+          <select class="inp" style="flex:1;font-size:13px" onchange="updatePay(${i},'deadline',this.value)" ${reorderMode?'disabled':''}>
+            <option value="">締日なし</option>
+            ${Array.from({length:31},(_,j)=>'<option value="'+(j+1)+'"'+(String(p.deadline||'')==String(j+1)?' selected':'')+'>'+(j+1)+'日</option>').join('')}
+          </select>
+          ${p.deadline ? `<span style="font-size:11px;font-weight:600;color:${getDaysColor(p.deadline)};white-space:nowrap">${getDaysLabel(p.deadline)}</span>` : ''}
+          ${p.deadline && !reorderMode ? `<button onclick="addToGoogleCalendar(${i})" style="font-size:10px;background:rgba(66,133,244,.2);color:#4285f4;border:1px solid rgba(66,133,244,.3);border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;white-space:nowrap">📅 カレンダー</button>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
+}
+
+function getDaysUntil(deadline){
+  const today = new Date();
+  const day = Number(deadline);
+  let target = new Date(today.getFullYear(), today.getMonth(), day);
+  if(target <= today) target = new Date(today.getFullYear(), today.getMonth()+1, day);
+  return Math.ceil((target-today)/(1000*60*60*24));
+}
+function getDaysLabel(deadline){
+  const d = getDaysUntil(deadline);
+  if(d===0) return '⚠️ 今日!';
+  if(d<=3) return '残'+d+'日!';
+  return '残'+d+'日';
+}
+function getDaysColor(deadline){
+  const d = getDaysUntil(deadline);
+  if(d<=0) return '#ef4444';
+  if(d<=3) return '#f87171';
+  if(d<=7) return '#fbbf24';
+  return '#34d399';
 }
 
 // ===== GOOGLE CALENDAR =====
@@ -1201,7 +1250,9 @@ async function runAI(){
   const income = md.history.reduce((s,h)=>s+Number(h.amount||0),0);
   const debtMon = S.debts.reduce((s,d)=>s+d.mon,0);
   const normalTotal = md.payments.reduce((s,p)=>s+Number(p.amount||0),0);
-  const remain = income - debtMon - md.payments.filter(p=>p.paid).reduce((s,p)=>s+Number(p.amount||0),0);
+  const gamblingLoss = (md.gambling||[]).reduce((s,g)=>s+Number(g.amount||0),0);
+  const paidNormal = md.payments.filter(p=>p.paid).reduce((s,p)=>s+Number(p.amount||0),0);
+  const remain = income - debtMon - paidNormal - gamblingLoss;
   const totalInt = S.debts.reduce((s,d)=>s+d.bal*(d.rate/100/12),0);
 
   if(income === 0 && S.debts.length === 0 && md.payments.length === 0){
@@ -1220,7 +1271,8 @@ async function runAI(){
     + '・今月の入金合計：'+yen(income)+'円\n'
     + '・借入返済合計（月）：'+yen(debtMon)+'円（うち月利息合計：'+yen(Math.round(totalInt))+'円）\n'
     + '・通常支払い合計：'+yen(normalTotal)+'円\n'
-    + '・現在の残り：'+yen(remain)+'円\n\n'
+    + (gamblingLoss>0 ? '・ギャンブル損失：'+yen(gamblingLoss)+'円（収支から差し引き済み）\n' : '')
+    + '・現在の残り（ギャンブル損失込み）：'+yen(remain)+'円\n\n'
     + '【借入先一覧】\n' + debtList + '\n\n'
     + '【今月の支払い一覧】\n' + payList2 + '\n\n'
     + '以下の点について、具体的に400〜600文字でアドバイスしてください：\n'
@@ -1684,9 +1736,9 @@ function addDebt(){
   const nameInput = document.getElementById('dName').value.trim();
   const nameSelect = document.getElementById('dNameSelect').value;
   const name = nameInput || (nameSelect && nameSelect !== 'その他（直接入力）' ? nameSelect : '');
-  const bal=parseFloat(document.getElementById('dBal').value)||0;
+  const bal=parseFloat(document.getElementById('dBal').value.replace(/,/g,''))||0;
   const rate=parseFloat(document.getElementById('dRate').value)||0;
-  const mon=parseFloat(document.getElementById('dMon').value)||0;
+  const mon=parseFloat(document.getElementById('dMon').value.replace(/,/g,''))||0;
   const penal=parseFloat(document.getElementById('dPenal').value)||0;
   const type=document.getElementById('dType').value;
   const deadline=document.getElementById('dDeadline').value||'';
@@ -1813,7 +1865,7 @@ function initGambleDateInput(){
 
 function addGamble(){
   const name = document.getElementById('gName').value.trim();
-  const amt = parseFloat(document.getElementById('gAmt').value) || 0;
+  const amt = parseFloat(document.getElementById('gAmt').value.replace(/,/g,'')) || 0;
   const date = document.getElementById('gDate').value;
   if(!name){ toast('名目を入力してください'); return; }
   if(amt <= 0){ toast('金額を入力してください'); return; }
@@ -2148,7 +2200,6 @@ function renderAll(){
 
 // ===== INIT =====
 // ストレージをクリアして完全に空の状態で起動
-localStorage.removeItem('kakei_v1');
 load();
 renderAll();
 renderHabits();
