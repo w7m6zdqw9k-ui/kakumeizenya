@@ -1,597 +1,474 @@
-import { useState, useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LINE Stamp AI Studio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #fafafa; font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif; }
+    input:focus { outline: 2px solid #FF4F4F; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #FF4F4F55; border-radius: 99px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-const API_URL = "https://api.anthropic.com/v1/messages";
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-const TABS = ["🎨 生成", "📦 管理", "🛒 販売", "📊 分析", "⚙️ 設定"];
+    const API_URL = "https://api.anthropic.com/v1/messages";
+    const TABS = ["🎨 生成", "📦 管理", "🛒 販売", "📊 分析", "⚙️ 設定"];
 
-const STAMP_STYLES = [
-  { id: "kawaii", label: "かわいい", emoji: "🐣", prompt: "cute kawaii Japanese character sticker, pastel colors, simple bold outline, white background, chibi style" },
-  { id: "funny", label: "おもしろ", emoji: "😂", prompt: "funny expressive Japanese LINE sticker, exaggerated facial expression, comic style, white background" },
-  { id: "cool", label: "クール", emoji: "😎", prompt: "cool stylish Japanese sticker, minimalist design, bold graphic, monochrome accent, white background" },
-  { id: "animal", label: "動物", emoji: "🐱", prompt: "cute animal character LINE sticker, soft watercolor style, expressive eyes, white background" },
-  { id: "daily", label: "日常", emoji: "🌸", prompt: "daily life Japanese sticker, warm illustration style, relatable emotion, simple clean design, white background" },
-];
+    const STAMP_STYLES = [
+      { id: "kawaii", label: "かわいい", emoji: "🐣", prompt: "cute kawaii Japanese character sticker, pastel colors, simple bold outline, white background, chibi style" },
+      { id: "funny", label: "おもしろ", emoji: "😂", prompt: "funny expressive Japanese LINE sticker, exaggerated facial expression, comic style, white background" },
+      { id: "cool", label: "クール", emoji: "😎", prompt: "cool stylish Japanese sticker, minimalist design, bold graphic, monochrome accent, white background" },
+      { id: "animal", label: "動物", emoji: "🐱", prompt: "cute animal character LINE sticker, soft watercolor style, expressive eyes, white background" },
+      { id: "daily", label: "日常", emoji: "🌸", prompt: "daily life Japanese sticker, warm illustration style, relatable emotion, simple clean design, white background" },
+    ];
 
-const EMOTIONS = ["うれしい", "かなしい", "おこった", "おどろき", "ありがとう", "ごめんね", "よろしく", "おやすみ"];
+    const EMOTIONS = ["うれしい", "かなしい", "おこった", "おどろき", "ありがとう", "ごめんね", "よろしく", "おやすみ"];
 
-const mockStamps = [
-  { id: 1, name: "にゃんこ日常", count: 8, status: "申請中", sales: 0, price: 120, thumbnail: "🐱" },
-  { id: 2, name: "くまさんの一言", count: 16, status: "販売中", sales: 342, price: 120, thumbnail: "🐻" },
-  { id: 3, name: "うさぎの感情", count: 8, status: "販売中", sales: 89, price: 120, thumbnail: "🐰" },
-];
+    const mockStamps = [
+      { id: 1, name: "にゃんこ日常", count: 8, status: "申請中", sales: 0, price: 120, thumbnail: "🐱" },
+      { id: 2, name: "くまさんの一言", count: 16, status: "販売中", sales: 342, price: 120, thumbnail: "🐻" },
+      { id: 3, name: "うさぎの感情", count: 8, status: "販売中", sales: 89, price: 120, thumbnail: "🐰" },
+    ];
 
-const salesData = [
-  { month: "1月", sales: 45 }, { month: "2月", sales: 62 }, { month: "3月", sales: 89 },
-  { month: "4月", sales: 120 }, { month: "5月", sales: 98 }, { month: "6月", sales: 145 },
-];
+    const salesData = [
+      { month: "1月", sales: 45 }, { month: "2月", sales: 62 }, { month: "3月", sales: 89 },
+      { month: "4月", sales: 120 }, { month: "5月", sales: 98 }, { month: "6月", sales: 145 },
+    ];
 
-function GeneratedStampCard({ prompt, index }) {
-  const colors = [
-    ["#FFE4E1", "#FF6B6B"], ["#E8F5E9", "#66BB6A"], ["#E3F2FD", "#42A5F5"],
-    ["#FFF9C4", "#FFCA28"], ["#F3E5F5", "#AB47BC"], ["#FBE9E7", "#FF7043"],
-    ["#E0F7FA", "#26C6DA"], ["#F9FBE7", "#D4E157"],
-  ];
-  const [bg, accent] = colors[index % colors.length];
-  const emojis = ["🐣", "🌸", "⭐", "🎀", "🍀", "🎪", "🦊", "🐧"];
+    function GeneratedStampCard({ index }) {
+      const colors = [
+        ["#FFE4E1", "#FF6B6B"], ["#E8F5E9", "#66BB6A"], ["#E3F2FD", "#42A5F5"],
+        ["#FFF9C4", "#FFCA28"], ["#F3E5F5", "#AB47BC"], ["#FBE9E7", "#FF7043"],
+        ["#E0F7FA", "#26C6DA"], ["#F9FBE7", "#D4E157"],
+      ];
+      const [bg, acc] = colors[index % colors.length];
+      const emojis = ["🐣", "🌸", "⭐", "🎀", "🍀", "🎪", "🦊", "🐧"];
+      return (
+        <div
+          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+          style={{
+            width: 80, height: 80, borderRadius: 12, background: bg,
+            display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "center", border: `2px solid ${acc}33`,
+            fontSize: 32, cursor: "pointer", transition: "transform 0.15s",
+          }}
+        >
+          <div>{emojis[index % emojis.length]}</div>
+          <div style={{ fontSize: 8, color: acc, fontWeight: 700, marginTop: 2 }}>#{index + 1}</div>
+        </div>
+      );
+    }
 
-  return (
-    <div style={{
-      width: 80, height: 80, borderRadius: 12, background: bg,
-      display: "flex", flexDirection: "column", alignItems: "center",
-      justifyContent: "center", border: `2px solid ${accent}33`,
-      fontSize: 32, cursor: "pointer", transition: "transform 0.15s",
-      position: "relative", overflow: "hidden",
-    }}
-      onMouseEnter={e => e.currentTarget.style.transform = "scale(1.08)"}
-      onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-    >
-      <div>{emojis[index % emojis.length]}</div>
-      <div style={{ fontSize: 8, color: accent, fontWeight: 700, marginTop: 2 }}>
-        #{index + 1}
-      </div>
-    </div>
-  );
-}
+    function ProgressBar({ value, max, color = "#FF6B6B" }) {
+      return (
+        <div style={{ background: "#f0f0f0", borderRadius: 99, height: 8, overflow: "hidden" }}>
+          <div style={{ width: `${Math.min((value / max) * 100, 100)}%`, height: "100%", background: color, borderRadius: 99, transition: "width 0.6s" }} />
+        </div>
+      );
+    }
 
-function ProgressBar({ value, max, color = "#FF6B6B" }) {
-  return (
-    <div style={{ background: "#f0f0f0", borderRadius: 99, height: 8, overflow: "hidden" }}>
-      <div style={{
-        width: `${(value / max) * 100}%`, height: "100%",
-        background: color, borderRadius: 99,
-        transition: "width 0.6s cubic-bezier(.4,0,.2,1)"
-      }} />
-    </div>
-  );
-}
+    function App() {
+      const [activeTab, setActiveTab] = useState(0);
+      const [style, setStyle] = useState(STAMP_STYLES[0]);
+      const [emotions, setEmotions] = useState(["うれしい", "ありがとう"]);
+      const [seriesName, setSeriesName] = useState("");
+      const [generating, setGenerating] = useState(false);
+      const [generatedStamps, setGeneratedStamps] = useState(null);
+      const [aiLog, setAiLog] = useState([]);
+      const [progress, setProgress] = useState(0);
+      const [stamps] = useState(mockStamps);
+      const [theme, setTheme] = useState("light");
+      const [apiKey, setApiKey] = useState("");
+      const [toggles, setToggles] = useState([false, true, true, false]);
+      const logRef = useRef(null);
 
-export default function LineStampStudio() {
-  const [activeTab, setActiveTab] = useState(0);
-  const [style, setStyle] = useState(STAMP_STYLES[0]);
-  const [emotions, setEmotions] = useState(["うれしい", "ありがとう"]);
-  const [seriesName, setSeriesName] = useState("");
-  const [generating, setGenerating] = useState(false);
-  const [generatedStamps, setGeneratedStamps] = useState([]);
-  const [aiLog, setAiLog] = useState([]);
-  const [progress, setProgress] = useState(0);
-  const [stamps] = useState(mockStamps);
-  const [settingsKey, setSettingsKey] = useState("");
-  const [theme, setTheme] = useState("light");
-  const logRef = useRef(null);
+      useEffect(() => {
+        if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+      }, [aiLog]);
 
-  useEffect(() => {
-    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
-  }, [aiLog]);
+      const addLog = (msg, type = "info") => {
+        setAiLog(prev => [...prev, { msg, type, time: new Date().toLocaleTimeString("ja-JP") }]);
+      };
 
-  const addLog = (msg, type = "info") => {
-    setAiLog(prev => [...prev, { msg, type, time: new Date().toLocaleTimeString("ja-JP") }]);
-  };
+      const toggleEmotion = (e) => {
+        setEmotions(prev => prev.includes(e) ? prev.filter(x => x !== e) : prev.length < 8 ? [...prev, e] : prev);
+      };
 
-  const toggleEmotion = (e) => {
-    setEmotions(prev =>
-      prev.includes(e) ? prev.filter(x => x !== e) : prev.length < 8 ? [...prev, e] : prev
-    );
-  };
+      const generateStamps = async () => {
+        if (emotions.length === 0) return;
+        setGenerating(true);
+        setGeneratedStamps(null);
+        setProgress(0);
+        setAiLog([]);
+        addLog("🚀 スタンプ生成パイプライン開始", "start");
+        addLog(`📋 スタイル: ${style.label} / 感情: ${emotions.join(", ")}`, "info");
 
-  const generateStamps = async () => {
-    if (emotions.length === 0) return;
-    setGenerating(true);
-    setGeneratedStamps([]);
-    setProgress(0);
-    setAiLog([]);
-
-    addLog("🚀 スタンプ生成パイプライン開始", "start");
-    addLog(`📋 スタイル: ${style.label} / 感情: ${emotions.join(", ")}`, "info");
-
-    const prompt = `あなたはLINEスタンプのデザイナーAIです。
+        const prompt = `あなたはLINEスタンプのデザイナーAIです。
 以下の条件でLINEスタンプセットの詳細な設計を行ってください。
-
 スタイル: ${style.label}（${style.prompt}）
 感情リスト: ${emotions.join("、")}
 シリーズ名: ${seriesName || "AIスタンプシリーズ"}
-
 以下をJSON形式で返してください（コードブロックなし、純粋なJSONのみ）:
-{
-  "seriesName": "シリーズ名",
-  "characterName": "キャラクター名",
-  "characterDesc": "キャラクター説明（1文）",
-  "mainColor": "メインカラー（例: ピンク系）",
-  "stamps": [
-    {
-      "emotion": "感情名",
-      "expression": "表情の説明",
-      "pose": "ポーズの説明",
-      "text": "スタンプに入れるテキスト（10文字以内）",
-      "imagePrompt": "英語の画像生成プロンプト（40語以内）"
-    }
-  ],
-  "tags": ["タグ1", "タグ2", "タグ3"],
-  "targetAge": "ターゲット年齢層",
-  "sellingPoint": "販売時のアピールポイント（1文）"
-}`;
+{"seriesName":"シリーズ名","characterName":"キャラクター名","characterDesc":"説明","mainColor":"メインカラー","stamps":[{"emotion":"感情名","expression":"表情","pose":"ポーズ","text":"テキスト10文字以内","imagePrompt":"英語プロンプト40語以内"}],"tags":["タグ1","タグ2","タグ3"],"targetAge":"年齢層","sellingPoint":"アピールポイント1文"}`;
 
-    try {
-      addLog("🤖 Claude AI に設計を依頼中...", "info");
-      setProgress(20);
+        try {
+          addLog("🤖 Claude AI に設計を依頼中...", "info");
+          setProgress(20);
+          const headers = { "Content-Type": "application/json" };
+          if (apiKey) headers["x-api-key"] = apiKey;
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1000,
+              messages: [{ role: "user", content: prompt }]
+            })
+          });
+          const data = await res.json();
+          setProgress(50);
+          addLog("✅ AI設計完了！パース中...", "success");
+          const text = (data.content || []).map(i => i.text || "").join("");
+          const clean = text.replace(/```json|```/g, "").trim();
+          const parsed = JSON.parse(clean);
+          setProgress(75);
+          addLog(`🎨 キャラクター「${parsed.characterName}」を設計しました`, "success");
+          addLog(`📝 ${parsed.stamps.length}枚のスタンプ設計完了`, "success");
+          addLog("🖼️ 画像生成API（Replicate）へキューイング中...", "info");
+          await new Promise(r => setTimeout(r, 800));
+          setProgress(88);
+          addLog("📐 LINE規格（370×320px）にリサイズ中...", "info");
+          await new Promise(r => setTimeout(r, 500));
+          setProgress(95);
+          addLog("📦 スタンプパッケージ作成中...", "info");
+          await new Promise(r => setTimeout(r, 400));
+          setProgress(100);
+          addLog("🎉 全スタンプ生成完了！", "success");
+          setGeneratedStamps(parsed);
+        } catch (e) {
+          addLog("❌ エラー: " + e.message, "error");
+          addLog("⚠️ 設定タブでAPIキーを確認してください", "warn");
+        }
+        setGenerating(false);
+      };
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }]
-        })
-      });
+      const submitToLine = () => {
+        addLog("📤 LINE Creators Market へ申請データ送信中...", "info");
+        setTimeout(() => addLog("✅ 申請完了！審査待ち状態になりました", "success"), 1000);
+      };
 
-      const data = await res.json();
-      setProgress(50);
-      addLog("✅ AI設計完了！パース中...", "success");
+      const isDark = theme === "dark";
+      const bg = isDark ? "#0f0f0f" : "#fafafa";
+      const card = isDark ? "#1a1a1a" : "#ffffff";
+      const border = isDark ? "#2a2a2a" : "#f0f0f0";
+      const textColor = isDark ? "#f0f0f0" : "#1a1a1a";
+      const sub = isDark ? "#888" : "#999";
+      const accent = "#FF4F4F";
 
-      const text = data.content?.map(i => i.text || "").join("") || "";
-      const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-
-      setProgress(75);
-      addLog(`🎨 キャラクター「${parsed.characterName}」を設計しました`, "success");
-      addLog(`📝 ${parsed.stamps.length}枚のスタンプ設計完了`, "success");
-
-      // Simulate image generation step
-      addLog("🖼️ 画像生成API（Replicate/DALL-E）へキューイング中...", "info");
-      await new Promise(r => setTimeout(r, 800));
-      setProgress(88);
-      addLog("📐 LINE規格（370×320px）にリサイズ中...", "info");
-      await new Promise(r => setTimeout(r, 500));
-      setProgress(95);
-      addLog("📦 スタンプパッケージ作成中...", "info");
-      await new Promise(r => setTimeout(r, 400));
-      setProgress(100);
-      addLog("🎉 全スタンプ生成完了！", "success");
-
-      setGeneratedStamps(parsed);
-    } catch (e) {
-      addLog("❌ エラー: " + e.message, "error");
-      addLog("⚠️ APIキーを設定タブで確認してください", "warn");
-    }
-
-    setGenerating(false);
-  };
-
-  const submitToLine = () => {
-    addLog("📤 LINE Creators Market へ申請データ送信中...", "info");
-    setTimeout(() => addLog("✅ 申請完了！審査待ち状態になりました", "success"), 1000);
-  };
-
-  const isDark = theme === "dark";
-  const bg = isDark ? "#0f0f0f" : "#fafafa";
-  const card = isDark ? "#1a1a1a" : "#ffffff";
-  const border = isDark ? "#2a2a2a" : "#f0f0f0";
-  const text = isDark ? "#f0f0f0" : "#1a1a1a";
-  const sub = isDark ? "#888" : "#999";
-  const accent = "#FF4F4F";
-
-  return (
-    <div style={{
-      minHeight: "100vh", background: bg, color: text,
-      fontFamily: "'Hiragino Sans', 'Noto Sans JP', sans-serif",
-      transition: "all 0.3s"
-    }}>
-      {/* Header */}
-      <div style={{
-        background: `linear-gradient(135deg, #FF4F4F 0%, #FF8C42 100%)`,
-        padding: "20px 24px", display: "flex", alignItems: "center",
-        justifyContent: "space-between", boxShadow: "0 2px 20px #FF4F4F44"
-      }}>
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: -0.5 }}>
-            🎌 LINE Stamp AI Studio
-          </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>
-            生成 → 申請 → 販売 → 分析まで全自動
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <div style={{
-            background: "rgba(255,255,255,0.2)", borderRadius: 20, padding: "4px 12px",
-            fontSize: 12, color: "#fff", fontWeight: 600
-          }}>
-            🟢 稼働中
-          </div>
-          <button
-            onClick={() => setTheme(t => t === "light" ? "dark" : "light")}
-            style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "#fff", fontSize: 16 }}
-          >
-            {isDark ? "☀️" : "🌙"}
-          </button>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: `1px solid ${border}`, background: card, overflowX: "auto" }}>
-        {TABS.map((t, i) => (
-          <button key={i} onClick={() => setActiveTab(i)} style={{
-            flex: "0 0 auto", padding: "14px 20px", border: "none", background: "transparent",
-            color: activeTab === i ? accent : sub, fontWeight: activeTab === i ? 700 : 400,
-            borderBottom: activeTab === i ? `2px solid ${accent}` : "2px solid transparent",
-            cursor: "pointer", fontSize: 13, whiteSpace: "nowrap", transition: "all 0.2s"
-          }}>
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ padding: "20px 16px", maxWidth: 720, margin: "0 auto" }}>
-
-        {/* ===== TAB 0: 生成 ===== */}
-        {activeTab === 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* Style */}
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 10 }}>スタイル選択</div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {STAMP_STYLES.map(s => (
-                  <button key={s.id} onClick={() => setStyle(s)} style={{
-                    padding: "8px 14px", borderRadius: 99, border: `2px solid ${style.id === s.id ? accent : border}`,
-                    background: style.id === s.id ? accent + "15" : "transparent",
-                    color: style.id === s.id ? accent : text, fontWeight: style.id === s.id ? 700 : 400,
-                    cursor: "pointer", fontSize: 13, transition: "all 0.2s"
-                  }}>
-                    {s.emoji} {s.label}
-                  </button>
-                ))}
-              </div>
+      return (
+        <div style={{ minHeight: "100vh", background: bg, color: textColor, fontFamily: "'Hiragino Sans','Noto Sans JP',sans-serif", transition: "all 0.3s" }}>
+          {/* Header */}
+          <div style={{ background: "linear-gradient(135deg,#FF4F4F,#FF8C42)", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 20px #FF4F4F44" }}>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: -0.5 }}>🎌 LINE Stamp AI Studio</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>生成 → 申請 → 販売 → 分析まで全自動</div>
             </div>
-
-            {/* Emotions */}
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <div style={{ fontSize: 12, color: sub, fontWeight: 600 }}>感情を選択（最大8つ）</div>
-                <div style={{ fontSize: 11, color: sub }}>{emotions.length}/8</div>
-              </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {EMOTIONS.map(e => (
-                  <button key={e} onClick={() => toggleEmotion(e)} style={{
-                    padding: "7px 14px", borderRadius: 99,
-                    border: `2px solid ${emotions.includes(e) ? accent : border}`,
-                    background: emotions.includes(e) ? accent : "transparent",
-                    color: emotions.includes(e) ? "#fff" : text,
-                    cursor: "pointer", fontSize: 13, fontWeight: emotions.includes(e) ? 700 : 400,
-                    transition: "all 0.2s"
-                  }}>
-                    {e}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Series Name */}
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 8 }}>シリーズ名（任意）</div>
-              <input
-                value={seriesName}
-                onChange={e => setSeriesName(e.target.value)}
-                placeholder="例: にゃんこの日常"
-                style={{
-                  width: "100%", padding: "10px 14px", borderRadius: 10,
-                  border: `1.5px solid ${border}`, background: isDark ? "#111" : "#f8f8f8",
-                  color: text, fontSize: 14, outline: "none", boxSizing: "border-box"
-                }}
-              />
-            </div>
-
-            {/* Generate Button */}
-            <button onClick={generateStamps} disabled={generating || emotions.length === 0} style={{
-              width: "100%", padding: "16px", borderRadius: 14, border: "none",
-              background: generating ? "#ccc" : `linear-gradient(135deg, #FF4F4F, #FF8C42)`,
-              color: "#fff", fontWeight: 800, fontSize: 16, cursor: generating ? "not-allowed" : "pointer",
-              boxShadow: generating ? "none" : "0 4px 20px #FF4F4F44",
-              transition: "all 0.3s", letterSpacing: 0.5
-            }}>
-              {generating ? "⏳ 生成中..." : "✨ AIスタンプを生成する"}
-            </button>
-
-            {/* Progress */}
-            {generating && (
-              <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>生成進捗</div>
-                  <div style={{ fontSize: 13, color: accent, fontWeight: 700 }}>{progress}%</div>
-                </div>
-                <ProgressBar value={progress} max={100} color={accent} />
-              </div>
-            )}
-
-            {/* AI Log */}
-            {aiLog.length > 0 && (
-              <div style={{ background: isDark ? "#111" : "#1a1a2e", borderRadius: 16, padding: 14, border: `1px solid ${border}` }}>
-                <div style={{ fontSize: 11, color: "#666", fontWeight: 600, marginBottom: 8 }}>🔍 AIパイプラインログ</div>
-                <div ref={logRef} style={{ maxHeight: 160, overflowY: "auto" }}>
-                  {aiLog.map((l, i) => (
-                    <div key={i} style={{ fontSize: 12, color: l.type === "success" ? "#4CAF50" : l.type === "error" ? "#f44336" : l.type === "warn" ? "#FF9800" : "#90CAF9", marginBottom: 4, fontFamily: "monospace" }}>
-                      <span style={{ color: "#555" }}>[{l.time}]</span> {l.msg}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Generated Results */}
-            {generatedStamps?.stamps && (
-              <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
-                  🎉 {generatedStamps.seriesName}
-                </div>
-                <div style={{ fontSize: 12, color: sub, marginBottom: 12 }}>
-                  キャラ: {generatedStamps.characterName} / {generatedStamps.targetAge} / {generatedStamps.mainColor}
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-                  {generatedStamps.stamps.map((s, i) => (
-                    <GeneratedStampCard key={i} prompt={s.imagePrompt} index={i} />
-                  ))}
-                </div>
-                <div style={{ fontSize: 12, color: sub, marginBottom: 12, background: isDark ? "#111" : "#f8f8f8", padding: "10px 12px", borderRadius: 10 }}>
-                  💡 {generatedStamps.sellingPoint}
-                </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-                  {generatedStamps.tags?.map(tag => (
-                    <span key={tag} style={{ padding: "3px 10px", borderRadius: 99, background: accent + "18", color: accent, fontSize: 11, fontWeight: 600 }}>#{tag}</span>
-                  ))}
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={submitToLine} style={{
-                    flex: 1, padding: "12px", borderRadius: 10, border: "none",
-                    background: "#06C755", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer"
-                  }}>
-                    📤 LINE へ申請
-                  </button>
-                  <button style={{
-                    flex: 1, padding: "12px", borderRadius: 10, border: `1.5px solid ${border}`,
-                    background: "transparent", color: text, fontWeight: 700, fontSize: 13, cursor: "pointer"
-                  }}>
-                    💾 下書き保存
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ===== TAB 1: 管理 ===== */}
-        {activeTab === 1 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ fontSize: 13, color: sub, fontWeight: 600 }}>スタンプ一覧 ({stamps.length}セット)</div>
-            {stamps.map(s => (
-              <div key={s.id} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ fontSize: 36, width: 52, height: 52, background: isDark ? "#222" : "#f5f5f5", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {s.thumbnail}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15 }}>{s.name}</div>
-                    <div style={{ fontSize: 12, color: sub, marginTop: 2 }}>
-                      {s.count}枚 · ¥{s.price}
-                    </div>
-                  </div>
-                  <div style={{
-                    padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700,
-                    background: s.status === "販売中" ? "#06C75520" : "#FF980020",
-                    color: s.status === "販売中" ? "#06C755" : "#FF9800"
-                  }}>
-                    {s.status}
-                  </div>
-                </div>
-                {s.status === "販売中" && (
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: sub, marginBottom: 6 }}>
-                      <span>販売数</span><span style={{ color: text, fontWeight: 700 }}>{s.sales}件</span>
-                    </div>
-                    <ProgressBar value={s.sales} max={500} color="#06C755" />
-                  </div>
-                )}
-                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                  <button style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${border}`, background: "transparent", color: text, fontSize: 12, cursor: "pointer" }}>✏️ 編集</button>
-                  <button style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${border}`, background: "transparent", color: text, fontSize: 12, cursor: "pointer" }}>📊 詳細</button>
-                  {s.status !== "販売中" && (
-                    <button style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: "#06C755", color: "#fff", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🚀 申請</button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ===== TAB 2: 販売 ===== */}
-        {activeTab === 2 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[
-                { label: "今月の収益", value: "¥5,160", sub: "+23% 先月比", color: "#06C755" },
-                { label: "総販売数", value: "431件", sub: "累計", color: "#FF4F4F" },
-                { label: "販売中", value: "2セット", sub: "審査中1件", color: "#FF8C42" },
-                { label: "平均評価", value: "4.6 ⭐", sub: "87件のレビュー", color: "#FFCA28" },
-              ].map(m => (
-                <div key={m.label} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-                  <div style={{ fontSize: 11, color: sub, fontWeight: 600 }}>{m.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: m.color, margin: "6px 0 2px" }}>{m.value}</div>
-                  <div style={{ fontSize: 11, color: sub }}>{m.sub}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>📈 月別売上推移</div>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 120 }}>
-                {salesData.map((d, i) => {
-                  const max = Math.max(...salesData.map(x => x.sales));
-                  const h = (d.sales / max) * 100;
-                  return (
-                    <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                      <div style={{ fontSize: 10, color: sub, fontWeight: 600 }}>{d.sales}</div>
-                      <div style={{
-                        width: "100%", height: `${h}px`,
-                        background: i === salesData.length - 1 ? accent : accent + "55",
-                        borderRadius: "4px 4px 0 0", transition: "height 0.5s",
-                        minHeight: 4
-                      }} />
-                      <div style={{ fontSize: 10, color: sub }}>{d.month}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>💡 AI販売アドバイス</div>
-              <div style={{ fontSize: 13, color: sub, lineHeight: 1.7 }}>
-                📌 <strong>「くまさんの一言」</strong>のレビュー分析から、ビジネス系感情（"お疲れ様"、"よろしく"）の需要が高いと判断。<br />
-                📌 次のスタンプは<strong>「仕事日常系」×「動物キャラ」</strong>の組み合わせを推奨。<br />
-                📌 価格は¥120のまま維持。現在の評価率から値上げリスクは低め。
-              </div>
-              <button style={{
-                marginTop: 12, width: "100%", padding: "10px", borderRadius: 10, border: "none",
-                background: `linear-gradient(135deg, #FF4F4F, #FF8C42)`, color: "#fff",
-                fontWeight: 700, fontSize: 13, cursor: "pointer"
-              }}>
-                🤖 AIに販売戦略を相談する
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 20, padding: "4px 12px", fontSize: 12, color: "#fff", fontWeight: 600 }}>🟢 稼働中</div>
+              <button onClick={() => setTheme(t => t === "light" ? "dark" : "light")} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "#fff", fontSize: 16 }}>
+                {isDark ? "☀️" : "🌙"}
               </button>
             </div>
           </div>
-        )}
 
-        {/* ===== TAB 3: 分析 ===== */}
-        {activeTab === 3 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>🏆 人気スタンプランキング</div>
-              {[
-                { rank: 1, name: "くまさん「ありがとう」", uses: 1420, trend: "+12%" },
-                { rank: 2, name: "くまさん「よろしく」", uses: 890, trend: "+5%" },
-                { rank: 3, name: "うさぎ「うれしい」", uses: 634, trend: "+8%" },
-                { rank: 4, name: "くまさん「おやすみ」", uses: 412, trend: "-2%" },
-              ].map(r => (
-                <div key={r.rank} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 99, background: r.rank === 1 ? "#FFD700" : r.rank === 2 ? "#C0C0C0" : r.rank === 3 ? "#CD7F32" : "#eee",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 12, fontWeight: 900, color: r.rank <= 3 ? "#fff" : "#999", flexShrink: 0
-                  }}>{r.rank}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div>
-                    <ProgressBar value={r.uses} max={1500} color={accent} />
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{r.uses}</div>
-                    <div style={{ fontSize: 11, color: r.trend.startsWith("+") ? "#06C755" : "#f44336" }}>{r.trend}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>📊 AIトレンド分析</div>
-              {[
-                { label: "「ゆるかわ」系需要", pct: 78 },
-                { label: "「ビジネス敬語」系需要", pct: 61 },
-                { label: "「推し活」系需要", pct: 45 },
-                { label: "「季節イベント」需要", pct: 88 },
-              ].map(t => (
-                <div key={t.label} style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
-                    <span>{t.label}</span><span style={{ fontWeight: 700, color: accent }}>{t.pct}%</span>
-                  </div>
-                  <ProgressBar value={t.pct} max={100} color={`hsl(${t.pct * 1.2}, 70%, 55%)`} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ===== TAB 4: 設定 ===== */}
-        {activeTab === 4 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {[
-              { label: "Anthropic APIキー", placeholder: "sk-ant-...", key: "anthropic" },
-              { label: "Replicate APIキー（画像生成）", placeholder: "r8_...", key: "replicate" },
-              { label: "LINE Creators Market Token", placeholder: "Bearer ...", key: "line" },
-              { label: "Google Drive フォルダID", placeholder: "1BxiM...", key: "gdrive" },
-            ].map(f => (
-              <div key={f.key} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-                <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 8 }}>{f.label}</div>
-                <input
-                  type="password"
-                  placeholder={f.placeholder}
-                  style={{
-                    width: "100%", padding: "10px 14px", borderRadius: 10,
-                    border: `1.5px solid ${border}`, background: isDark ? "#111" : "#f8f8f8",
-                    color: text, fontSize: 13, outline: "none", boxSizing: "border-box",
-                    fontFamily: "monospace"
-                  }}
-                />
-              </div>
+          {/* Tabs */}
+          <div style={{ display: "flex", borderBottom: `1px solid ${border}`, background: card, overflowX: "auto" }}>
+            {TABS.map((t, i) => (
+              <button key={i} onClick={() => setActiveTab(i)} style={{
+                flex: "0 0 auto", padding: "14px 20px", border: "none", background: "transparent",
+                color: activeTab === i ? accent : sub, fontWeight: activeTab === i ? 700 : 400,
+                borderBottom: activeTab === i ? `2px solid ${accent}` : "2px solid transparent",
+                cursor: "pointer", fontSize: 13, whiteSpace: "nowrap", transition: "all 0.2s"
+              }}>{t}</button>
             ))}
+          </div>
 
-            <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>🔗 自動化パイプライン</div>
-              {[
-                { label: "生成後に自動でLINE申請", enabled: false },
-                { label: "審査通過後に自動で販売開始", enabled: true },
-                { label: "週次トレンドレポートをメール送信", enabled: true },
-                { label: "売上目標達成時に通知", enabled: false },
-              ].map((s, i) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < 3 ? `1px solid ${border}` : "none" }}>
-                  <span style={{ fontSize: 13 }}>{s.label}</span>
-                  <div style={{
-                    width: 40, height: 22, borderRadius: 99,
-                    background: s.enabled ? "#06C755" : "#ccc",
-                    position: "relative", cursor: "pointer", transition: "background 0.2s"
-                  }}>
-                    <div style={{
-                      width: 18, height: 18, borderRadius: 99, background: "#fff",
-                      position: "absolute", top: 2, left: s.enabled ? 20 : 2,
-                      transition: "left 0.2s", boxShadow: "0 1px 4px #0003"
-                    }} />
+          <div style={{ padding: "20px 16px", maxWidth: 720, margin: "0 auto" }}>
+
+            {/* TAB 0: 生成 */}
+            {activeTab === 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 10 }}>スタイル選択</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {STAMP_STYLES.map(s => (
+                      <button key={s.id} onClick={() => setStyle(s)} style={{
+                        padding: "8px 14px", borderRadius: 99, border: `2px solid ${style.id === s.id ? accent : border}`,
+                        background: style.id === s.id ? accent + "15" : "transparent",
+                        color: style.id === s.id ? accent : textColor, fontWeight: style.id === s.id ? 700 : 400,
+                        cursor: "pointer", fontSize: 13, transition: "all 0.2s"
+                      }}>{s.emoji} {s.label}</button>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <button style={{
-              width: "100%", padding: "14px", borderRadius: 14, border: "none",
-              background: `linear-gradient(135deg, #FF4F4F, #FF8C42)`,
-              color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer",
-              boxShadow: "0 4px 20px #FF4F4F44"
-            }}>
-              💾 設定を保存
-            </button>
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, color: sub, fontWeight: 600 }}>感情を選択（最大8つ）</div>
+                    <div style={{ fontSize: 11, color: sub }}>{emotions.length}/8</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {EMOTIONS.map(e => (
+                      <button key={e} onClick={() => toggleEmotion(e)} style={{
+                        padding: "7px 14px", borderRadius: 99,
+                        border: `2px solid ${emotions.includes(e) ? accent : border}`,
+                        background: emotions.includes(e) ? accent : "transparent",
+                        color: emotions.includes(e) ? "#fff" : textColor,
+                        cursor: "pointer", fontSize: 13, fontWeight: emotions.includes(e) ? 700 : 400, transition: "all 0.2s"
+                      }}>{e}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 8 }}>シリーズ名（任意）</div>
+                  <input value={seriesName} onChange={e => setSeriesName(e.target.value)} placeholder="例: にゃんこの日常"
+                    style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${border}`, background: isDark ? "#111" : "#f8f8f8", color: textColor, fontSize: 14 }} />
+                </div>
+
+                <button onClick={generateStamps} disabled={generating || emotions.length === 0} style={{
+                  width: "100%", padding: "16px", borderRadius: 14, border: "none",
+                  background: generating ? "#ccc" : "linear-gradient(135deg,#FF4F4F,#FF8C42)",
+                  color: "#fff", fontWeight: 800, fontSize: 16, cursor: generating ? "not-allowed" : "pointer",
+                  boxShadow: generating ? "none" : "0 4px 20px #FF4F4F44", transition: "all 0.3s"
+                }}>{generating ? "⏳ 生成中..." : "✨ AIスタンプを生成する"}</button>
+
+                {generating && (
+                  <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>生成進捗</div>
+                      <div style={{ fontSize: 13, color: accent, fontWeight: 700 }}>{progress}%</div>
+                    </div>
+                    <ProgressBar value={progress} max={100} color={accent} />
+                  </div>
+                )}
+
+                {aiLog.length > 0 && (
+                  <div style={{ background: isDark ? "#111" : "#1a1a2e", borderRadius: 16, padding: 14 }}>
+                    <div style={{ fontSize: 11, color: "#666", fontWeight: 600, marginBottom: 8 }}>🔍 AIパイプラインログ</div>
+                    <div ref={logRef} style={{ maxHeight: 160, overflowY: "auto" }}>
+                      {aiLog.map((l, i) => (
+                        <div key={i} style={{ fontSize: 12, color: l.type === "success" ? "#4CAF50" : l.type === "error" ? "#f44336" : l.type === "warn" ? "#FF9800" : "#90CAF9", marginBottom: 4, fontFamily: "monospace" }}>
+                          <span style={{ color: "#555" }}>[{l.time}]</span> {l.msg}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {generatedStamps && (
+                  <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>🎉 {generatedStamps.seriesName}</div>
+                    <div style={{ fontSize: 12, color: sub, marginBottom: 12 }}>キャラ: {generatedStamps.characterName} / {generatedStamps.targetAge} / {generatedStamps.mainColor}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+                      {generatedStamps.stamps.map((s, i) => <GeneratedStampCard key={i} index={i} />)}
+                    </div>
+                    <div style={{ fontSize: 12, color: sub, marginBottom: 12, background: isDark ? "#111" : "#f8f8f8", padding: "10px 12px", borderRadius: 10 }}>
+                      💡 {generatedStamps.sellingPoint}
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+                      {generatedStamps.tags?.map(tag => (
+                        <span key={tag} style={{ padding: "3px 10px", borderRadius: 99, background: accent + "18", color: accent, fontSize: 11, fontWeight: 600 }}>#{tag}</span>
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={submitToLine} style={{ flex: 1, padding: "12px", borderRadius: 10, border: "none", background: "#06C755", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>📤 LINE へ申請</button>
+                      <button style={{ flex: 1, padding: "12px", borderRadius: 10, border: `1.5px solid ${border}`, background: "transparent", color: textColor, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>💾 下書き保存</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 1: 管理 */}
+            {activeTab === 1 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ fontSize: 13, color: sub, fontWeight: 600 }}>スタンプ一覧 ({stamps.length}セット)</div>
+                {stamps.map(s => (
+                  <div key={s.id} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ fontSize: 36, width: 52, height: 52, background: isDark ? "#222" : "#f5f5f5", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.thumbnail}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15 }}>{s.name}</div>
+                        <div style={{ fontSize: 12, color: sub, marginTop: 2 }}>{s.count}枚 · ¥{s.price}</div>
+                      </div>
+                      <div style={{ padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: s.status === "販売中" ? "#06C75520" : "#FF980020", color: s.status === "販売中" ? "#06C755" : "#FF9800" }}>{s.status}</div>
+                    </div>
+                    {s.status === "販売中" && (
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: sub, marginBottom: 6 }}>
+                          <span>販売数</span><span style={{ color: textColor, fontWeight: 700 }}>{s.sales}件</span>
+                        </div>
+                        <ProgressBar value={s.sales} max={500} color="#06C755" />
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                      <button style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${border}`, background: "transparent", color: textColor, fontSize: 12, cursor: "pointer" }}>✏️ 編集</button>
+                      <button style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${border}`, background: "transparent", color: textColor, fontSize: 12, cursor: "pointer" }}>📊 詳細</button>
+                      {s.status !== "販売中" && <button style={{ flex: 1, padding: "8px", borderRadius: 8, border: "none", background: "#06C755", color: "#fff", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🚀 申請</button>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* TAB 2: 販売 */}
+            {activeTab === 2 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {[
+                    { label: "今月の収益", value: "¥5,160", sub: "+23% 先月比", color: "#06C755" },
+                    { label: "総販売数", value: "431件", sub: "累計", color: "#FF4F4F" },
+                    { label: "販売中", value: "2セット", sub: "審査中1件", color: "#FF8C42" },
+                    { label: "平均評価", value: "4.6 ⭐", sub: "87件のレビュー", color: "#FFCA28" },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                      <div style={{ fontSize: 11, color: sub, fontWeight: 600 }}>{m.label}</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: m.color, margin: "6px 0 2px" }}>{m.value}</div>
+                      <div style={{ fontSize: 11, color: sub }}>{m.sub}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>📈 月別売上推移</div>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 120 }}>
+                    {salesData.map((d, i) => {
+                      const max = Math.max(...salesData.map(x => x.sales));
+                      const h = (d.sales / max) * 100;
+                      return (
+                        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                          <div style={{ fontSize: 10, color: sub, fontWeight: 600 }}>{d.sales}</div>
+                          <div style={{ width: "100%", height: `${h}px`, background: i === salesData.length - 1 ? accent : accent + "55", borderRadius: "4px 4px 0 0", minHeight: 4 }} />
+                          <div style={{ fontSize: 10, color: sub }}>{d.month}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>💡 AI販売アドバイス</div>
+                  <div style={{ fontSize: 13, color: sub, lineHeight: 1.7 }}>
+                    📌 <strong>「くまさんの一言」</strong>のレビュー分析から、ビジネス系感情の需要が高いと判断。<br />
+                    📌 次のスタンプは<strong>「仕事日常系」×「動物キャラ」</strong>の組み合わせを推奨。<br />
+                    📌 価格は¥120のまま維持。現在の評価率から値上げリスクは低め。
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: 分析 */}
+            {activeTab === 3 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>🏆 人気スタンプランキング</div>
+                  {[
+                    { rank: 1, name: "くまさん「ありがとう」", uses: 1420, trend: "+12%" },
+                    { rank: 2, name: "くまさん「よろしく」", uses: 890, trend: "+5%" },
+                    { rank: 3, name: "うさぎ「うれしい」", uses: 634, trend: "+8%" },
+                    { rank: 4, name: "くまさん「おやすみ」", uses: 412, trend: "-2%" },
+                  ].map(r => (
+                    <div key={r.rank} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 99, background: r.rank === 1 ? "#FFD700" : r.rank === 2 ? "#C0C0C0" : r.rank === 3 ? "#CD7F32" : "#eee", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: r.rank <= 3 ? "#fff" : "#999", flexShrink: 0 }}>{r.rank}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div>
+                        <ProgressBar value={r.uses} max={1500} color={accent} />
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{r.uses}</div>
+                        <div style={{ fontSize: 11, color: r.trend.startsWith("+") ? "#06C755" : "#f44336" }}>{r.trend}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>📊 AIトレンド分析</div>
+                  {[
+                    { label: "「ゆるかわ」系需要", pct: 78 },
+                    { label: "「ビジネス敬語」系需要", pct: 61 },
+                    { label: "「推し活」系需要", pct: 45 },
+                    { label: "「季節イベント」需要", pct: 88 },
+                  ].map(t => (
+                    <div key={t.label} style={{ marginBottom: 12 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
+                        <span>{t.label}</span><span style={{ fontWeight: 700, color: accent }}>{t.pct}%</span>
+                      </div>
+                      <ProgressBar value={t.pct} max={100} color={`hsl(${t.pct * 1.2},70%,55%)`} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 4: 設定 */}
+            {activeTab === 4 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[
+                  { label: "Anthropic APIキー", placeholder: "sk-ant-...", state: apiKey, setter: setApiKey },
+                ].map((f, i) => (
+                  <div key={i} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                    <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 8 }}>{f.label}</div>
+                    <input type="password" value={f.state} onChange={e => f.setter(e.target.value)} placeholder={f.placeholder}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${border}`, background: isDark ? "#111" : "#f8f8f8", color: textColor, fontSize: 13, fontFamily: "monospace" }} />
+                  </div>
+                ))}
+                {[
+                  { label: "Replicate APIキー（画像生成）", placeholder: "r8_..." },
+                  { label: "LINE Creators Market Token", placeholder: "Bearer ..." },
+                  { label: "Google Drive フォルダID", placeholder: "1BxiM..." },
+                ].map((f, i) => (
+                  <div key={i} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                    <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: 8 }}>{f.label}</div>
+                    <input type="password" placeholder={f.placeholder}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${border}`, background: isDark ? "#111" : "#f8f8f8", color: textColor, fontSize: 13, fontFamily: "monospace" }} />
+                  </div>
+                ))}
+                <div style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}` }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>🔗 自動化パイプライン</div>
+                  {["生成後に自動でLINE申請", "審査通過後に自動で販売開始", "週次トレンドレポートをメール送信", "売上目標達成時に通知"].map((label, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < 3 ? `1px solid ${border}` : "none" }}>
+                      <span style={{ fontSize: 13 }}>{label}</span>
+                      <div onClick={() => setToggles(prev => prev.map((v, j) => j === i ? !v : v))} style={{ width: 40, height: 22, borderRadius: 99, background: toggles[i] ? "#06C755" : "#ccc", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+                        <div style={{ width: 18, height: 18, borderRadius: 99, background: "#fff", position: "absolute", top: 2, left: toggles[i] ? 20 : 2, transition: "left 0.2s", boxShadow: "0 1px 4px #0003" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button style={{ width: "100%", padding: "14px", borderRadius: 14, border: "none", background: "linear-gradient(135deg,#FF4F4F,#FF8C42)", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 20px #FF4F4F44" }}>
+                  💾 設定を保存
+                </button>
+              </div>
+            )}
           </div>
-        )}
 
-      </div>
+          <div style={{ textAlign: "center", padding: "24px 16px", color: sub, fontSize: 11 }}>
+            LINE Stamp AI Studio · Powered by Claude AI
+          </div>
+        </div>
+      );
+    }
 
-      {/* Footer */}
-      <div style={{ textAlign: "center", padding: "24px 16px", color: sub, fontSize: 11 }}>
-        LINE Stamp AI Studio · Powered by Claude AI
-      </div>
-    </div>
-  );
-}
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
