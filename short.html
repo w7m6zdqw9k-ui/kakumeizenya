@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BET & GOAL サムネイルテンプレ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  gap: 20px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  color: #FFD700;
+  letter-spacing: 4px;
+  font-size: 1.1rem;
+}
+
+/* ===== EDITOR ===== */
+.editor {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editor-title {
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: #555;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-label {
+  font-size: 0.65rem;
+  color: #666;
+  letter-spacing: 1px;
+}
+
+input, textarea, select {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  width: 100%;
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border-color: #FFD700;
+}
+
+textarea { resize: none; height: 60px; }
+
+.btn-update {
+  background: #FFD700;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+  font-size: 0.8rem;
+  padding: 10px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* ===== PREVIEW ===== */
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.thumbnail {
+  width: 300px;
+  height: 533px;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  flex-shrink: 0;
+}
+
+.thumb-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(0,40,150,0.9) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, rgba(150,0,20,0.7) 0%, transparent 60%),
+    #030308;
+}
+
+.thumb-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 25px 25px;
+}
+
+.thumb-top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(to right, #0033FF, #FFD700, #CC0022);
+}
+
+.thumb-account {
+  position: absolute;
+  top: 12px;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.4);
+}
+
+.thumb-emoji-area {
+  position: absolute;
+  top: 40px;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 3rem;
+  filter: drop-shadow(0 0 20px rgba(255,100,100,0.8));
+}
+
+.thumb-main {
+  position: absolute;
+  top: 120px;
+  left: 12px; right: 12px;
+  text-align: center;
+}
+
+.thumb-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 4px;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(255,255,255,0.3);
+}
+
+.thumb-sub {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+.thumb-divider {
+  position: absolute;
+  top: 210px;
+  left: 24px; right: 24px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,215,0,0.5), transparent);
+}
+
+.thumb-middle {
+  position: absolute;
+  top: 225px;
+  left: 12px; right: 12px;
+  text-align: center;
+}
+
+.thumb-highlight {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+.thumb-content {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.8;
+  margin-top: 6px;
+}
+
+.thumb-bottom {
+  position: absolute;
+  bottom: 16px;
+  left: 12px; right: 12px;
+  text-align: center;
+}
+
+.thumb-cta {
+  background: linear-gradient(135deg, #0033FF, #0055FF);
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+  display: inline-block;
+  box-shadow: 0 4px 20px rgba(0,51,255,0.4);
+}
+
+.thumb-handle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: rgba(255,215,0,0.6);
+  margin-top: 5px;
+}
+
+.glow-blue {
+  position: absolute;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: rgba(0,51,255,0.15);
+  filter: blur(30px);
+  top: -30px; left: -30px;
+  pointer-events: none;
+}
+
+.glow-red {
+  position: absolute;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: rgba(200,0,30,0.15);
+  filter: blur(30px);
+  bottom: -30px; right: -30px;
+  pointer-events: none;
+}
+
+.hint {
+  font-size: 0.6rem;
+  color: #444;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+/* COLOR PRESETS */
+.preset-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  font-size: 0.6rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #333;
+  background: #111;
+  color: #aaa;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.preset-btn:hover { border-color: #FFD700; color: #FFD700; }
+</style>
+</head>
+<body>
+
+<h2>🎬 BET & GOAL サムネイルテンプレ</h2>
+
+<!-- EDITOR -->
+<div class="editor">
+  <div class="editor-title">✏️ テキスト編集</div>
+
+  <div class="input-group">
+    <div class="input-label">① 絵文字（上部）</div>
+    <input type="text" id="emoji" value="💔⚽" oninput="update()">
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">② メインテキスト（大きい文字）</div>
+    <input type="text" id="mainName" value="三笘薫" oninput="update()">
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">③ サブテキスト（小さい文字）</div>
+    <input type="text" id="subText" value="まさかの落選…" oninput="update()">
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">④ ハイライト文字（金色）</div>
+    <input type="text" id="highlight" value="🔥 俺が期待するのはコイツ！" oninput="update()">
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">⑤ 内容テキスト</div>
+    <textarea id="content" oninput="update()">中村敬斗
+スタッド・ランス🇫🇷
+今季11ゴール💥</textarea>
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">⑥ CTAボタン</div>
+    <input type="text" id="cta" value="👆 フォローして続報チェック！" oninput="update()">
+  </div>
+
+  <div class="input-group">
+    <div class="input-label">⑦ ハンドル名</div>
+    <input type="text" id="handle" value="@777Gole" oninput="update()">
+  </div>
+
+  <div class="editor-title" style="margin-top:8px;">🎨 テーマプリセット</div>
+  <div class="preset-row">
+    <button class="preset-btn" onclick="setPreset('soccer')">⚽ サッカー</button>
+    <button class="preset-btn" onclick="setPreset('pachinko')">🎰 パチンコ</button>
+    <button class="preset-btn" onclick="setPreset('hot')">🔥 速報</button>
+    <button class="preset-btn" onclick="setPreset('shock')">😱 衝撃</button>
+  </div>
+</div>
+
+<!-- PREVIEW -->
+<div class="preview-wrap">
+  <div class="hint">↓ プレビュー（スクショして使用）</div>
+  <div class="thumbnail" id="thumb">
+    <div class="thumb-bg"></div>
+    <div class="thumb-grid"></div>
+    <div class="glow-blue"></div>
+    <div class="glow-red"></div>
+    <div class="thumb-top-bar"></div>
+    <div class="thumb-account">BET & GOAL</div>
+    <div class="thumb-emoji-area" id="prev-emoji">💔⚽</div>
+    <div class="thumb-main">
+      <div class="thumb-name" id="prev-name">三笘薫</div>
+      <div class="thumb-sub" id="prev-sub">まさかの落選…</div>
+    </div>
+    <div class="thumb-divider"></div>
+    <div class="thumb-middle">
+      <div class="thumb-highlight" id="prev-highlight">🔥 俺が期待するのはコイツ！</div>
+      <div class="thumb-content" id="prev-content">中村敬斗<br>スタッド・ランス🇫🇷<br>今季11ゴール💥</div>
+    </div>
+    <div class="thumb-bottom">
+      <div class="thumb-cta" id="prev-cta">👆 フォローして続報チェック！</div>
+      <div class="thumb-handle" id="prev-handle">@777Gole</div>
+    </div>
+  </div>
+  <div class="hint">スクショ→写真アプリでトリミングして保存</div>
+</div>
+
+<script>
+function update() {
+  document.getElementById('prev-emoji').textContent = document.getElementById('emoji').value;
+  document.getElementById('prev-name').textContent = document.getElementById('mainName').value;
+  document.getElementById('prev-sub').textContent = document.getElementById('subText').value;
+  document.getElementById('prev-highlight').textContent = document.getElementById('highlight').value;
+  document.getElementById('prev-content').innerHTML = document.getElementById('content').value.replace(/\n/g, '<br>');
+  document.getElementById('prev-cta').textContent = document.getElementById('cta').value;
+  document.getElementById('prev-handle').textContent = document.getElementById('handle').value;
+}
+
+function setPreset(type) {
+  const presets = {
+    soccer: {
+      emoji: '⚽🔥',
+      mainName: '日本代表',
+      subText: 'W杯2026メンバー発表！',
+      highlight: '🏆 注目選手はコイツ！',
+      content: '久保建英\nレアル・ソシエダ🇪🇸\n今季12ゴール💥',
+      cta: '👆 フォローして続報チェック！',
+    },
+    pachinko: {
+      emoji: '🎰💥',
+      mainName: '新台爆誕',
+      subText: '5月導入の最新スペック',
+      highlight: '💰 最大出玉がやばい！',
+      content: 'eカケグルイ 7500ver.\n確率 1/204\n期待出玉 7500個',
+      cta: '👆 フォローして新台情報GET！',
+    },
+    hot: {
+      emoji: '🔥⚡',
+      mainName: '速報',
+      subText: '今すぐチェック！',
+      highlight: '📢 緊急情報入りました！',
+      content: '詳細はフォローして\n最新情報をGET\n毎週更新中！',
+      cta: '👆 今すぐフォロー！',
+    },
+    shock: {
+      emoji: '😱💀',
+      mainName: '衝撃',
+      subText: 'まさかの展開…',
+      highlight: '⚠️ これは予想外すぎた',
+      content: '詳細は動画で解説\nコメントで意見聞かせて！\n賛否両論大歓迎👇',
+      cta: '👆 フォローして続報チェック！',
+    },
+  };
+
+  const p = presets[type];
+  document.getElementById('emoji').value = p.emoji;
+  document.getElementById('mainName').value = p.mainName;
+  document.getElementById('subText').value = p.subText;
+  document.getElementById('highlight').value = p.highlight;
+  document.getElementById('content').value = p.content;
+  document.getElementById('cta').value = p.cta;
+  update();
+}
+</script>
+</body>
+</html>
